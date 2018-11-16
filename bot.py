@@ -4,11 +4,31 @@ from random import randint
 
 # 1 is North, 0 is South
 board_side = 0
-
+current_board_state = [7] * 7 + [0] + [7] * 7 + [0]
 BOARD_SIDE_SOUTH = 0
 BOARD_SIDE_NORTH = 1
 
 NUM_HOLES_PER_SIDE = 7
+
+
+def get_legal_actions(board_state, board_side):
+    """
+    :board_state - list
+    :board_side - int n in [0, 1]
+    """
+    legal_choices = []
+
+    if board_side == BOARD_SIDE_NORTH:
+        for i in range(0, NUM_HOLES_PER_SIDE):
+            if board_state[i] > 0:
+                legal_choices.append(i)
+    else:
+        for i in range(NUM_HOLES_PER_SIDE + 1, 15):
+            if board_state[i] > 0:
+                legal_choices.append(i)
+
+    return legal_choices
+
 
 def make_move():
     random_choice = randint(1, NUM_HOLES_PER_SIDE)
@@ -33,9 +53,8 @@ def on_change(*args):
         global board_side
         board_side = not board_side
 
-
-    global current_state
-    current_state = state.split(',')
+    global current_board_state
+    current_board_state = state.split(',')
 
     if turn == 'YOU':
         make_move()

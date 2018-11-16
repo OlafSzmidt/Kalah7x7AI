@@ -1,6 +1,6 @@
 import sys
+import random
 from enum import Enum
-from random import randint
 
 # 1 is North, 0 is South
 board_side = 0
@@ -31,7 +31,7 @@ def get_legal_actions(board_state, board_side):
 
 
 def make_move():
-    random_choice = randint(1, NUM_HOLES_PER_SIDE)
+    random_choice = random.choice(get_legal_actions(current_board_state, board_side))
     print("MOVE;" + str(random_choice))
 
 def on_start(*args):

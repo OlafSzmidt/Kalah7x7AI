@@ -2,9 +2,11 @@ import sys
 from enum import Enum
 from random import randint
 
-class BoardSide(Enum):
-    North = 1
-    South = 2
+# 1 is North, 0 is South
+board_side = 0
+
+BOARD_SIDE_SOUTH = 0
+BOARD_SIDE_NORTH = 1
 
 NUM_HOLES_PER_SIDE = 7
 
@@ -17,17 +19,20 @@ def on_start(*args):
     Makes a move if SOUTH, otherwise goes back to listening
     """
     global board_side
-    board_side = BoardSide[args[0]]
-
-    if board_side is BoardSide.South:
+    if args[0] == 'North':
+        board_side = BOARD_SIDE_NORTH
         make_move()
+    else:
+        board_side = BOARD_SIDE_SOUTH
 
 def on_change(*args):
     move_swap, state, turn = args[0].split(';', 2)
 
     # Check if <MOVE> or "SWAP"
     if move_swap == 'SWAP':
-        pass
+        global board_side
+        board_side = not board_side
+
 
     global current_state
     current_state = state.split(',')
@@ -53,7 +58,7 @@ def read_message(input):
     """
     if input == 'END':
         on_end()
-        
+
     message_name, message_arguments = input.split(';', 1)
 
     message_options[message_name](message_arguments)

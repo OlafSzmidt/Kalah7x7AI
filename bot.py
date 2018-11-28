@@ -16,14 +16,73 @@ log = open("log.txt", "w")
 
 board_state = BoardState()
 
+def get_board_action_hash(state, action, player_board_side):
+    feature = 0
+    for i in state.south_board_state.keys()
+        feature = 31 * feature + state.south_board_state[i]
+
+    feature = 31 * feature + state.south_board_score
+
+    for i in state.north_board_state.keys()
+        feature = 31 * feature + state.north_board_state[i]
+
+    feature = 31 * feature + state.north_board_score
+    feature = 31 * feature + action
+    feature = 31 * feature + board_side
+
+    return feature
+
+def get_feature_vector(state, action, player_board_side):
+    features = []
+
+    state_after_action = state.get_next_state(action, player_board_side)
+
+    feature1 = get_board_action_hash(state, action, player_board_side)
+
+    features.append(feature1)
+
+    return features
+
+def decision(prob):
+    return random.random() < prob
+
+def dot(K, L):
+   if len(K) != len(L):
+      return 0
+
+   return sum(i[0] * i[1] for i in zip(K, L))
+
+epsilon = 0.3
+weight_vector = []
+made_a_move_yet = False
+
 def make_move():
-    random_choice = random.choice(get_legal_moves(board_state, board_side))
-    move = "MOVE;" + str(random_choice) + "\n"
+    if decision(epsilon):
+        choice = random.choice(get_legal_moves(board_state, board_side))
+    else:
+        possible_moves = get_legal_moves(board_state, board_side)
+
+        curr_highest_val = 0
+        best_move = possible_moves[0]
+
+        for move in possible_moves:
+            features = get_feature_vector(board_state, move, board_side)
+            value_estimate = dot(features, weight_vector)
+
+            if value_estimate > curr_highest_val:
+                best_move = move
+
+        choice = best_move
+
+    move = "MOVE;" + str(choice) + "\n"
 
     log.write(move)
 
     sys.stdout.write(move)
     sys.stdout.flush()
+
+    global made_a_move_yet
+    made_a_move_yet = True
 
 def on_start(*args):
     """

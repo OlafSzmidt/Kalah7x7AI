@@ -48,19 +48,19 @@ class BoardState:
         else:
             self.south_board_score += 1
 
-    def get_next_state(self, action, player_board_side):
+    def get_next_state(self, hole_choice, player_board_side):
         next_state = self.copy()
 
-        if action in get_legal_moves(self):
-            board_state = next_state.get_board_state_for_side(player_board_side)
+        if hole_choice in get_legal_moves(self):
+            side_state = next_state.get_board_state_for_side(player_board_side)
 
-            remaining_seeds = board_state[action]
+            remaining_seeds = side_state[hole_choice]
             # Empty the selected hole
-            board_state[action] = 0
+            side_state[hole_choice] = 0
 
             # Picked any hole but the last one before the scoring well
-            if action < 7:
-                next_hole = Hole(action + 1, player_board_side)
+            if hole_choice < 7:
+                next_hole = Hole(hole_choice + 1, player_board_side)
             else:
                 # We chose the /final/ hole on the players side.
                 # Next hole is past the scoring well, so we switch sides and
@@ -94,7 +94,7 @@ class BoardState:
 
                 next_hole = Hole(next_hole_number, next_hole_side)
         else:
-            log.write("Action is not a legal move: " + str(action) + "\n")
+            log.write("Action is not a legal move: " + str(hole_choice) + "\n")
             sys.stderr.write("CHECK LOGS! EXITING")
 
             sys.exit(0)

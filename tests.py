@@ -1,5 +1,6 @@
 import unittest
 from board_state import BoardState
+from bot import make_move
 
 class TestBot(unittest.TestCase):
 
@@ -27,3 +28,6 @@ class TestBot(unittest.TestCase):
         self.assertEquals(next_state.south_board_score, expected_south_score)
         self.assertEquals(next_state.south_board_state, expected_south_state)
         self.assertEquals(next_state.north_board_state, expected_north_state)
+
+    def test_make_move(self):
+        make_move()

@@ -18,12 +18,12 @@ board_state = BoardState()
 
 def get_board_action_hash(state, action, player_board_side):
     feature = 0
-    for i in state.south_board_state.keys()
+    for i in state.south_board_state.keys():
         feature = 31 * feature + state.south_board_state[i]
 
     feature = 31 * feature + state.south_board_score
 
-    for i in state.north_board_state.keys()
+    for i in state.north_board_state.keys():
         feature = 31 * feature + state.north_board_state[i]
 
     feature = 31 * feature + state.north_board_score
@@ -144,5 +144,7 @@ def read_message(input):
 
     message_options[message_name](message_arguments)
 
-while True:
-    read_message(raw_input())
+
+if __name__ == "__main__":
+    while True:
+        read_message(raw_input())

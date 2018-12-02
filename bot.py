@@ -56,23 +56,107 @@ epsilon = 0.3
 weight_vector = []
 made_a_move_yet = False
 
+
+
+def get_heuristic_val(board_state, max_player_side):
+    max_score = board_state.get_score_for_side(max_player_side)
+    min_score = board_state.get_score_for_side(not max_player_side)
+    
+    max_stones = board_state.total_stones_on_side(max_player_side)
+    min_stones = board_state.total_stones_on_side(not max_player_side)
+    
+    return (max_score - min_score) + (max_stones - min_stones)
+
+def get_max_value(board_state, board_side, depth):
+    curr_highest_val = 0
+    
+    possible_moves = get_legal_moves(board_state, board_side)
+    
+    if len(possible_moves) == 0:
+        stones_opp_side = board_state.total_stones_on_side(not board_side)
+        
+        board_state_copy = board_state.copy()
+        
+        board_state_copy._increase_score_for_side(not board_side, stones_opp_side)
+        
+        if board_state_copy.get_score_for_side(board_side) > board_state_copy.get_score_for_side(not board_side):
+            return float("inf")
+        elif board_state_copy.get_score_for_side(board_side) < board_state_copy.get_score_for_side(not board_side):
+            return float("-inf")
+        else:
+            return 0
+    
+    for move in possible_moves:
+        next_state = board_state.get_next_state(move, board_state)
+            
+        if depth > DEPTH_LIMIT:
+            val = get_heuristic_val(next_state, board_side)
+        else:
+            if board_state.do_we_play_again(move, board_side):
+                val = get_max_value(next_state, board_side, depth + 1)
+            else:
+                val = get_min_value(next_state, not board_side, depth + 1)
+            
+        if val > curr_highest_val:
+            curr_highest_val = val
+            
+    
+    return curr_highest_val
+
+def get_min_value(board_state, board_side, depth):
+    curr_lowest_val = 0
+    
+    possible_moves = get_legal_moves(board_state, board_side)
+    
+    if len(possible_moves) == 0:
+        stones_opp_side = board_state.total_stones_on_side(not board_side)
+        
+        board_state_copy = board_state.copy()
+        
+        board_state_copy._increase_score_for_side(not board_side, stones_opp_side)
+        
+        if board_state_copy.get_score_for_side(board_side) > board_state_copy.get_score_for_side(not board_side):
+            return float("-inf")
+        elif board_state_copy.get_score_for_side(board_side) < board_state_copy.get_score_for_side(not board_side):
+            return float("inf")
+        else:
+            return 0
+    
+    for move in possible_moves:
+        next_state = board_state.get_next_state(move, board_side)
+        
+        if depth > DEPTH_LIMIT:
+            val = get_heuristic_val(next_state, not board_side)
+        else:
+            if board_state.do_we_play_again(move, board_side):
+                val = get_min_value(next_state, board_side, depth + 1)
+            else:
+                val = get_max_value(next_state, not board_side, depth + 1)
+                
+        if val < curr_lowest_val:
+            curr_lowest_val = val
+            
+    
+    return curr_lowest_val
+
 def make_move():
-    if decision(epsilon):
-        choice = random.choice(get_legal_moves(board_state, board_side))
-    else:
-        possible_moves = get_legal_moves(board_state, board_side)
+    possible_moves = get_legal_moves(board_state, board_side)
 
-        curr_highest_val = 0
-        best_move = possible_moves[0]
+    curr_highest_val = 0
+    best_move = possible_moves[0]
 
-        for move in possible_moves:
-            features = get_feature_vector(board_state, move, board_side)
-            value_estimate = dot(features, weight_vector)
-
-            if value_estimate > curr_highest_val:
-                best_move = move
-
-        choice = best_move
+    for move in possible_moves:
+        next_state = board_state.get_next_state(move, board_side)
+        
+        if board_state.do_we_play_again(move, board_side):
+            value = get_max_value(next_state, board_side, 1)
+        else:
+            value = get_min_value(next_state, not board_side, 1)
+        
+        if value > curr_highest_val:
+            best_move = move
+        
+    choice = best_move
 
     move = "MOVE;" + str(choice) + "\n"
 
@@ -147,4 +231,4 @@ def read_message(input):
 
 if __name__ == "__main__":
     while True:
-        read_message(raw_input())
+        read_message(input())

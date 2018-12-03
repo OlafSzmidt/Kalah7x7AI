@@ -102,15 +102,21 @@ def make_move(is_first_move, is_second_move):
     global calls
     calls = 0
     log.write("Making a move \n")
+    log.write("=== Board State === \n")
+    log.write(str(board_state) + "\n")
+    log.write("=================== \n")
+
     possible_moves = get_legal_moves(board_state, board_side, is_second_move)
+
+    log.write("=== Legal Moves ===\n")
+    log.write(possible_moves)
+    log.write("===========\n")
 
     curr_highest_val = 0
     best_move = possible_moves[0]
 
     for move in possible_moves:
         next_state = board_state.get_next_state(move, board_side)
-
-        log.write("\n" + str(next_state) + "\n")
 
         if board_state.do_we_play_again(move, board_side, is_first_move):
             value = min_max(next_state, False, False, 1, board_side, True, float("-inf"), float("inf"))
@@ -119,12 +125,8 @@ def make_move(is_first_move, is_second_move):
         else:
             value = min_max(next_state, False, False, 1, not board_side, False, float("-inf"), float("inf"))
 
-        log.write("value: " + str(value) + "\n")
-
         if value > curr_highest_val:
             best_move = move
-
-    log.write(str(calls) + "\n")
 
     choice = best_move
 

@@ -128,7 +128,10 @@ def make_move(is_first_move, is_second_move):
 
     choice = best_move
 
-    move = "MOVE;" + str(choice) + "\n"
+    if choice == -1:
+        move = "SWAP\n"
+    else:
+        move = "MOVE;" + str(choice) + "\n"
 
     log.write(move)
 

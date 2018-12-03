@@ -26,6 +26,25 @@ class BoardState:
 
         return new_board_state
 
+    def to_key(self):
+        keyString = ""
+
+        keyString += str(self.north_board_score)
+
+        for i in range(1, 8):
+            keyString += str(i)
+            keyString += str(self.north_board_state[i])
+
+        for i in range(1, 8):
+            keyString += str(i)
+            keyString += str(self.south_board_state[i])
+
+        keyString += str(self.south_board_score)
+
+        return int(keyString)
+
+
+
 
     def total_stones_on_side(self, board_side):
         total = 0

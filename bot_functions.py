@@ -1,3 +1,5 @@
+from multiprocessing.pool import Pool
+
 from bot_constants import *
 
 log = open("function_log.txt", "w")
@@ -32,6 +34,9 @@ def get_heuristic_val(board_state, max_player_side):
 
     return heuristic_val
 
+min_max_state = {}
+
+
 def min_max(input_board_state, is_first_move, is_second_move, depth, max_player_side, is_max_player, alpha, beta):
     if is_max_player:
         board_side = max_player_side
@@ -40,6 +45,7 @@ def min_max(input_board_state, is_first_move, is_second_move, depth, max_player_
 
     legal_choices = get_legal_moves(input_board_state, board_side, is_second_move)
 
+    state_as_key = input_board_state.to_key()
     if len(legal_choices) == 0:
         stones_opp_side = input_board_state.total_stones_on_side(not board_side)
 
@@ -47,17 +53,28 @@ def min_max(input_board_state, is_first_move, is_second_move, depth, max_player_
 
         if oppScore > input_board_state.get_score_for_side(board_side):
             if is_max_player:
-                return float("-inf")
-            return float("inf")
+                val = float("-inf")
+            else:
+                val = float("inf")
         elif oppScore < input_board_state.get_score_for_side(board_side):
             if is_max_player:
-                float("inf")
-            return float("-inf")
+                val = float("inf")
+            else:
+                val = float("-inf")
         else:
-            return 0
+            val = 0
+
+        min_max_state[state_as_key] = val
+        return val
+
+    if state_as_key in min_max_state:
+        return min_max_state[state_as_key]
 
     if depth == DEPTH_LIMIT:
-        return get_heuristic_val(input_board_state, max_player_side)
+        val = get_heuristic_val(input_board_state, max_player_side)
+
+        min_max_state[state_as_key] = val
+        return val
 
     if is_max_player:
         bestVal = float("-inf")
@@ -79,7 +96,7 @@ def min_max(input_board_state, is_first_move, is_second_move, depth, max_player_
 
             if beta <= alpha:
                 break
-
+        min_max_state[state_as_key] = bestVal
         return bestVal
 
     else:
@@ -103,4 +120,5 @@ def min_max(input_board_state, is_first_move, is_second_move, depth, max_player_
             if beta <= alpha:
                 break
 
+        min_max_state[state_as_key] = bestVal
         return bestVal

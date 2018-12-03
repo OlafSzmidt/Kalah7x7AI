@@ -8,165 +8,126 @@ from bot_constants import *
 
 # 1 is North, 0 is South
 board_side = 0
-
-epsilon = 0.05
-
+made_a_move_yet = False
+calls = 0
 log = open("bot_log.txt", "w")
 
 board_state = BoardState()
-
-def get_board_action_hash(state, action, player_board_side):
-    feature = 0
-    for i in state.south_board_state.keys():
-        feature = 31 * feature + state.south_board_state[i]
-
-    feature = 31 * feature + state.south_board_score
-
-    for i in state.north_board_state.keys():
-        feature = 31 * feature + state.north_board_state[i]
-
-    feature = 31 * feature + state.north_board_score
-    feature = 31 * feature + action
-    feature = 31 * feature + board_side
-
-    return feature
-
-def get_feature_vector(state, action, player_board_side):
-    features = []
-
-    state_after_action = state.get_next_state(action, player_board_side)
-
-    feature1 = get_board_action_hash(state, action, player_board_side)
-
-    features.append(feature1)
-
-    return features
-
-def decision(prob):
-    return random.random() < prob
-
-def dot(K, L):
-   if len(K) != len(L):
-      return 0
-
-   return sum(i[0] * i[1] for i in zip(K, L))
-
-epsilon = 0.3
-weight_vector = []
-made_a_move_yet = False
-
 
 
 def get_heuristic_val(board_state, max_player_side):
     max_score = board_state.get_score_for_side(max_player_side)
     min_score = board_state.get_score_for_side(not max_player_side)
-    
+
     max_stones = board_state.total_stones_on_side(max_player_side)
     min_stones = board_state.total_stones_on_side(not max_player_side)
-    
+
     return (max_score - min_score) + (max_stones - min_stones)
 
-calls = 0
 
 def get_max_value(board_state, board_side, depth):
     global calls
     calls += 1
-    
+
     curr_highest_val = 0
-    
-    possible_moves = get_legal_moves(board_state, board_side)
-    
+
+    possible_moves = get_legal_moves(board_state, board_side, is_second_move=False)
+
     if len(possible_moves) == 0:
         stones_opp_side = board_state.total_stones_on_side(not board_side)
-        
+
         board_state_copy = board_state.copy()
-        
+
         board_state_copy._increase_score_for_side(not board_side, stones_opp_side)
-        
+
         if board_state_copy.get_score_for_side(board_side) > board_state_copy.get_score_for_side(not board_side):
             return float("inf")
         elif board_state_copy.get_score_for_side(board_side) < board_state_copy.get_score_for_side(not board_side):
             return float("-inf")
         else:
             return 0
-    
+
     for move in possible_moves:
         next_state = board_state.get_next_state(move, board_side)
-            
+
         if depth > DEPTH_LIMIT:
             val = get_heuristic_val(next_state, board_side)
         else:
-            if board_state.do_we_play_again(move, board_side):
+            if board_state.do_we_play_again(move, board_side, is_first_move=False):
                 val = get_max_value(next_state, board_side, depth + 1)
             else:
-                val = get_min_value(next_state, not board_side, depth + 1)
-            
+                val = get_min_value(next_state, not board_side, depth + 1, is_second_move=False)
+
         if val > curr_highest_val:
             curr_highest_val = val
-            
-    
+
+
     return curr_highest_val
 
-def get_min_value(board_state, board_side, depth):
+def get_min_value(board_state, board_side, depth, is_second_move):
     global calls
     calls += 1
     curr_lowest_val = 0
-    
-    possible_moves = get_legal_moves(board_state, board_side)
-    
+
+    possible_moves = get_legal_moves(board_state, board_side, is_second_move)
+
     if len(possible_moves) == 0:
         stones_opp_side = board_state.total_stones_on_side(not board_side)
-        
+
         board_state_copy = board_state.copy()
-        
+
         board_state_copy._increase_score_for_side(not board_side, stones_opp_side)
-        
+
         if board_state_copy.get_score_for_side(board_side) > board_state_copy.get_score_for_side(not board_side):
             return float("-inf")
         elif board_state_copy.get_score_for_side(board_side) < board_state_copy.get_score_for_side(not board_side):
             return float("inf")
         else:
             return 0
-    
+
     for move in possible_moves:
         next_state = board_state.get_next_state(move, board_side)
-        
+
         if depth > DEPTH_LIMIT:
             val = get_heuristic_val(next_state, not board_side)
         else:
-            if board_state.do_we_play_again(move, board_side):
-                val = get_min_value(next_state, board_side, depth + 1)
-            else:
+            if board_state.do_we_play_again(move, board_side, is_first_move=False):
+                val = get_min_value(next_state, board_side, depth + 1, is_second_move)
+            elif move != SWAP_MOVE:
                 val = get_max_value(next_state, not board_side, depth + 1)
-                
+            else:
+                val = get_max_value(next_state, board_side, depth + 1)
+
         if val < curr_lowest_val:
             curr_lowest_val = val
-            
-    
+
+
     return curr_lowest_val
 
-def make_move(first_move_of_game=False):
-    global calls 
+def make_move(is_first_move, is_second_move):
+    global calls
     calls = 0
     log.write("Making a move")
-    possible_moves = get_legal_moves(board_state, board_side)
+    possible_moves = get_legal_moves(board_state, board_side, is_second_move)
 
     curr_highest_val = 0
     best_move = possible_moves[0]
 
     for move in possible_moves:
         next_state = board_state.get_next_state(move, board_side)
-        
-        if board_state.do_we_play_again(move, board_side):
+
+        if board_state.do_we_play_again(move, board_side, is_first_move):
             value = get_max_value(next_state, board_side, 1)
+        elif move != SWAP_MOVE:
+            value = get_min_value(next_state, board_side, 1, is_second_move=is_first_move)
         else:
-            value = get_min_value(next_state, not board_side, 1)
-        
+            value = get_min_value(next_state, not board_side, 1, is_second_move=is_first_move)
+
         if value > curr_highest_val:
             best_move = move
-    
+
     log.write(str(calls) + "\n")
-        
+
     choice = best_move
 
     move = "MOVE;" + str(choice) + "\n"
@@ -176,8 +137,6 @@ def make_move(first_move_of_game=False):
     sys.stdout.write(move)
     sys.stdout.flush()
 
-    global made_a_move_yet
-    made_a_move_yet = True
 
 def on_start(*args):
     """
@@ -188,7 +147,7 @@ def on_start(*args):
         board_side = BOARD_SIDE_NORTH
     else:
         board_side = BOARD_SIDE_SOUTH
-        make_move(True)
+        make_move(is_first_move=True, is_second_move=False)
 
 def on_change(*args):
     move_swap, state, turn = args[0].split(';', 2)
@@ -213,8 +172,14 @@ def on_change(*args):
 
     board_state.south_board_score = int(board_state_input[2 * NUM_HOLES_PER_SIDE + 1])
 
+    global made_a_move_yet
     if turn == 'YOU':
-        make_move()
+        if not made_a_move_yet:
+            make_move(is_first_move=False, is_second_move=True)
+        else:
+            make_move(is_first_move=False, is_second_move=False)
+
+    made_a_move_yet = True
 
     # Ignore OPP turn.
 

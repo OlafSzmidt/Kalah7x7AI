@@ -115,9 +115,9 @@ def make_move(is_first_move, is_second_move):
         if board_state.do_we_play_again(move, board_side, is_first_move):
             value = min_max(next_state, False, False, 1, board_side, True, float("-inf"), float("inf"))
         elif move != SWAP_MOVE:
-            value = min_max(next_state, False, is_first_move, 1, not board_side, False, float("-inf"), float("inf"))
+            value = min_max(next_state, False, is_first_move, 1, board_side, False, float("-inf"), float("inf"))
         else:
-            value = min_max(next_state, False, False, 1, board_side, False, float("-inf"), float("inf"))
+            value = min_max(next_state, False, False, 1, not board_side, False, float("-inf"), float("inf"))
 
         log.write("value: " + str(value) + "\n")
 
@@ -209,4 +209,4 @@ if __name__ == "__main__":
             inp = input()
             read_message(inp)
     except:
-        log.write(sys.exc_info()[0])
+        log.write(str(sys.exc_info()))

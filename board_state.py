@@ -33,7 +33,7 @@ class BoardState:
         for key, val in self.get_board_state_for_side(board_side).items():
             total += val
 
-        return val
+        return total
 
 
     def do_we_play_again(self, move, board_side, is_first_move):

@@ -100,8 +100,6 @@ def get_min_value(board_state, board_side, depth, is_second_move):
 
 def make_move(is_first_move, is_second_move):
     global calls
-    global board_side
-
     calls = 0
     log.write("Making a move \n")
     log.write("=== Board State === \n")
@@ -135,6 +133,7 @@ def make_move(is_first_move, is_second_move):
     if choice == -1:
         move = "SWAP\n"
 
+        global board_side
         board_side = not board_side
     else:
         move = "MOVE;" + str(choice) + "\n"

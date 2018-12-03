@@ -109,7 +109,7 @@ def make_move(is_first_move, is_second_move):
     possible_moves = get_legal_moves(board_state, board_side, is_second_move)
 
     log.write("=== Legal Moves ===\n")
-    log.write(possible_moves)
+    log.write(str(possible_moves))
     log.write("===========\n")
 
     curr_highest_val = 0
@@ -214,4 +214,5 @@ if __name__ == "__main__":
             inp = input()
             read_message(inp)
     except:
-        log.write(str(sys.exc_info()))
+        log.write(str(sys.exc_info()[3]))
+        print(str(sys.exc_info()[3]))

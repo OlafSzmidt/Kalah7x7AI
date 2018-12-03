@@ -1,6 +1,6 @@
 from bot_constants import *
 
-log = open("log.txt", "w")
+log = open("function_log.txt", "w")
 
 
 def get_legal_moves(input_board_state, board_side):

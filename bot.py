@@ -155,6 +155,10 @@ def on_start(*args):
 def on_change(*args):
     move_swap, state, turn = args[0].split(';', 2)
 
+    log.write("==== Bot Input ====\n")
+    log.write(args[0] + "\n")
+    log.write("====================\n")
+
     # Check if <MOVE> or "SWAP"
     if move_swap == 'SWAP':
         global board_side
@@ -174,6 +178,11 @@ def on_change(*args):
         board_state.south_board_state[i - NUM_HOLES_PER_SIDE] = int(board_state_input[i])
 
     board_state.south_board_score = int(board_state_input[2 * NUM_HOLES_PER_SIDE + 1])
+
+
+    log.write("==== Loaded State ====\n")
+    log.write(str(board_state) + "\n")
+    log.write("============\n")
 
     global made_a_move_yet
     if turn == 'YOU':

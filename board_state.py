@@ -2,7 +2,7 @@ from bot_functions import get_legal_moves
 from bot_constants import *
 import sys
 
-log = open("log.txt", "w")
+log = open("state_log.txt", "w")
 
 class Hole:
     def __init__(self, number, board_side):

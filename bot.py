@@ -1,8 +1,7 @@
-#!/bin/python
+#!/usr/bin/python3.3
 
 import sys
 import random
-from enum import Enum
 from board_state import BoardState
 from bot_functions import get_legal_moves
 from bot_constants import *
@@ -12,7 +11,7 @@ board_side = 0
 
 epsilon = 0.05
 
-log = open("log.txt", "w")
+log = open("bot_log.txt", "w")
 
 board_state = BoardState()
 
@@ -67,7 +66,12 @@ def get_heuristic_val(board_state, max_player_side):
     
     return (max_score - min_score) + (max_stones - min_stones)
 
+calls = 0
+
 def get_max_value(board_state, board_side, depth):
+    global calls
+    calls += 1
+    
     curr_highest_val = 0
     
     possible_moves = get_legal_moves(board_state, board_side)
@@ -87,7 +91,7 @@ def get_max_value(board_state, board_side, depth):
             return 0
     
     for move in possible_moves:
-        next_state = board_state.get_next_state(move, board_state)
+        next_state = board_state.get_next_state(move, board_side)
             
         if depth > DEPTH_LIMIT:
             val = get_heuristic_val(next_state, board_side)
@@ -104,6 +108,8 @@ def get_max_value(board_state, board_side, depth):
     return curr_highest_val
 
 def get_min_value(board_state, board_side, depth):
+    global calls
+    calls += 1
     curr_lowest_val = 0
     
     possible_moves = get_legal_moves(board_state, board_side)
@@ -139,7 +145,10 @@ def get_min_value(board_state, board_side, depth):
     
     return curr_lowest_val
 
-def make_move():
+def make_move(first_move_of_game=False):
+    global calls 
+    calls = 0
+    log.write("Making a move")
     possible_moves = get_legal_moves(board_state, board_side)
 
     curr_highest_val = 0
@@ -155,6 +164,8 @@ def make_move():
         
         if value > curr_highest_val:
             best_move = move
+    
+    log.write(str(calls) + "\n")
         
     choice = best_move
 
@@ -177,7 +188,7 @@ def on_start(*args):
         board_side = BOARD_SIDE_NORTH
     else:
         board_side = BOARD_SIDE_SOUTH
-        make_move()
+        make_move(True)
 
 def on_change(*args):
     move_swap, state, turn = args[0].split(';', 2)
@@ -193,14 +204,14 @@ def on_change(*args):
     for i in range(0,7):
         board_state.north_board_state[i + 1] = int(board_state_input[i])
 
-    board_state.north_board_score = board_state_input[NUM_HOLES_PER_SIDE]
+    board_state.north_board_score = int(board_state_input[NUM_HOLES_PER_SIDE])
 
     # Input is modular, we need to shift to the next 'part' which starts at
     # index NUM_HOLES_PER_SIDE + 1
     for i in range(NUM_HOLES_PER_SIDE + 1, 2 * NUM_HOLES_PER_SIDE + 1):
-        board_state.south_board_state[i - NUM_HOLES_PER_SIDE] = board_state_input[i]
+        board_state.south_board_state[i - NUM_HOLES_PER_SIDE] = int(board_state_input[i])
 
-    board_state.south_board_score = board_state_input[2 * NUM_HOLES_PER_SIDE + 1]
+    board_state.south_board_score = int(board_state_input[2 * NUM_HOLES_PER_SIDE + 1])
 
     if turn == 'YOU':
         make_move()
@@ -230,5 +241,9 @@ def read_message(input):
 
 
 if __name__ == "__main__":
-    while True:
-        read_message(input())
+    try:
+        while True:
+            inp = input()
+            read_message(inp)
+    except:
+        log.write(sys.exc_info()[0])

@@ -3,7 +3,8 @@
 import sys
 import random
 from board_state import BoardState
-from bot_functions import get_legal_moves
+from bot_functions import get_legal_moves,min_max
+
 from bot_constants import *
 
 # 1 is North, 0 is South
@@ -14,15 +15,6 @@ log = open("bot_log.txt", "w")
 
 board_state = BoardState()
 
-
-def get_heuristic_val(board_state, max_player_side):
-    max_score = board_state.get_score_for_side(max_player_side)
-    min_score = board_state.get_score_for_side(not max_player_side)
-
-    max_stones = board_state.total_stones_on_side(max_player_side)
-    min_stones = board_state.total_stones_on_side(not max_player_side)
-
-    return (max_score - min_score) + (max_stones - min_stones)
 
 
 def get_max_value(board_state, board_side, depth):
@@ -104,10 +96,12 @@ def get_min_value(board_state, board_side, depth, is_second_move):
 
     return curr_lowest_val
 
+# def min_max(input_board_state, is_first_move, is_second_move, depth, max_player_side, is_max_player, alpha, beta):
+
 def make_move(is_first_move, is_second_move):
     global calls
     calls = 0
-    log.write("Making a move")
+    log.write("Making a move \n")
     possible_moves = get_legal_moves(board_state, board_side, is_second_move)
 
     curr_highest_val = 0
@@ -116,12 +110,16 @@ def make_move(is_first_move, is_second_move):
     for move in possible_moves:
         next_state = board_state.get_next_state(move, board_side)
 
+        log.write("\n" + str(next_state) + "\n")
+
         if board_state.do_we_play_again(move, board_side, is_first_move):
-            value = get_max_value(next_state, board_side, 1)
+            value = min_max(next_state, False, False, 1, board_side, True, float("-inf"), float("inf"))
         elif move != SWAP_MOVE:
-            value = get_min_value(next_state, board_side, 1, is_second_move=is_first_move)
+            value = min_max(next_state, False, is_first_move, 1, not board_side, False, float("-inf"), float("inf"))
         else:
-            value = get_min_value(next_state, not board_side, 1, is_second_move=is_first_move)
+            value = min_max(next_state, False, False, 1, board_side, False, float("-inf"), float("inf"))
+
+        log.write("value: " + str(value) + "\n")
 
         if value > curr_highest_val:
             best_move = move

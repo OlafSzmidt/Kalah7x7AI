@@ -133,3 +133,10 @@ class BoardState:
             sys.exit(0)
 
         return next_state
+
+    def __str__(self):
+        string_representation = str(self.north_board_score) + " | " + str(self.north_board_state)
+        string_representation = string_representation + '\n'
+        string_representation = string_representation + str(self.south_board_score) + " | " + str(self.south_board_state)
+
+        return string_representation

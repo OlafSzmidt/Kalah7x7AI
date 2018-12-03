@@ -132,6 +132,8 @@ def make_move(is_first_move, is_second_move):
 
     if choice == -1:
         move = "SWAP\n"
+
+        global board_side
         board_side = not board_side
     else:
         move = "MOVE;" + str(choice) + "\n"

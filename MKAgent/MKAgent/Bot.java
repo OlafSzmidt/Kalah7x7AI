@@ -1,7 +1,13 @@
 package MKAgent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import static MKAgent.BotFunctions.minMax;
 
 public class Bot {
@@ -60,7 +66,17 @@ public class Bot {
 
     }
 
-    public void makeMove(boolean isFirstMove, boolean isSecondMove) {
+    static class PlayResult {
+        Move startMove;
+        Future<Integer> task;
+
+        PlayResult(Move s, Future<Integer> r) {
+            startMove = s;
+            task = r;
+        }
+    }
+
+    public void makeMove(final boolean isFirstMove, boolean isSecondMove) throws Exception{
         madeMoveYet = true;
 
         List<Move> legalMoves = BotFunctions.getLegalMoves(boardState, mySide);
@@ -71,41 +87,67 @@ public class Bot {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
 
+        List<PlayResult> results = new ArrayList<>();
+        final int alphCopy = alpha;
+        final int betaCopy = beta;
         // Simulate swap move
         if (isSecondMove) {
-            int value = minMax(boardState, mySide.opposite(), false, alpha, beta, false, 1);
+            Callable callable = new Callable<Integer>() {
+                @Override
+                public Integer call() throws Exception {
+                    return minMax(boardState, mySide.opposite(), false, alphCopy, betaCopy, false, 1);
+                }
+            };
 
-            if (value > bestMoveValue) {
-                bestMoveValue = value;
-                bestMove = new Move.SwapMove();
-            }
-
-            alpha = bestMoveValue;
+            results.add(new PlayResult(new Move.SwapMove(), executorService.submit(callable)));
         }
 
         for (Move m : legalMoves) {
-            Board nextBoardState = new Board(boardState);
+            final Board nextBoardState = new Board(boardState);
             Side nextTurn = new Kalah(nextBoardState).makeMove(m);
 
-            int value;
             if (nextTurn == mySide && !isFirstMove) {
-                value = minMax(nextBoardState, mySide, true, alpha, beta, false, 1);
+                Callable callable = new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws Exception {
+                        return minMax(nextBoardState, mySide, true, alphCopy, betaCopy, false, 1);
+                    }
+                };
+
+                results.add(new PlayResult(m, executorService.submit(callable)));
             }else {
-                value = minMax(nextBoardState, mySide, false, alpha, beta, isFirstMove, 1);
+                Callable callable = new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws Exception {
+                        return minMax(nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1);
+                    }
+                };
+
+                results.add(new PlayResult(m, executorService.submit(callable)));
             }
 
-            if (value > bestMoveValue) {
-                bestMoveValue = value;
-                bestMove = m;
-            }
 
-            if (bestMoveValue > alpha) {
-                alpha = bestMoveValue;
-            }
+        }
 
-            if (beta <= alpha) {
-                break;
+        for (PlayResult result : results) {
+            if (result.task.isDone()) {
+                int value = result.task.get();
+
+                if (value > bestMoveValue) {
+                    bestMoveValue = value;
+                    bestMove = result.startMove;
+                }
+
+                if (bestMoveValue > alpha) {
+                    alpha = bestMoveValue;
+                }
+
+                if (beta <= alpha) {
+                    executorService.shutdownNow();
+                    break;
+                }
             }
         }
 

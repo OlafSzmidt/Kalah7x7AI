@@ -59,7 +59,7 @@ public class BotFunctions {
             return maxScore > minScore ? Integer.MAX_VALUE : maxScore == minScore ? 0 : Integer.MIN_VALUE;
         }
 
-        if (depth == 11) {
+        if (depth == 12) {
             return heuristicValue(b, maxPlayerSide);
         }
 

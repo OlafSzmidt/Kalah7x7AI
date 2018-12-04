@@ -54,9 +54,4 @@ public class Move
     		super(null, 1);
 		}
 	}
-
-	@Override
-	public String toString() {
-    	return "[Move: " + hole + ", Side: " + side.toString() + "]";
-	}
 }

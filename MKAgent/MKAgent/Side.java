@@ -18,4 +18,9 @@ public enum Side
 			default: return NORTH;  // dummy
 		}
 	}
+
+	@Override
+	public String toString() {
+		return this == NORTH ? "NORTH" : "SOUTH";
+	}
 }

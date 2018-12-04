@@ -46,6 +46,10 @@ public class Bot {
                     makeMove(false, !madeMoveYet);
                 }
 
+		if (moveTurn.move == -1)
+		{
+			mySide = mySide.opposite();
+		}
 
                 break;
 
@@ -62,7 +66,7 @@ public class Bot {
         List<Move> legalMoves = BotFunctions.getLegalMoves(boardState, mySide);
 
 
-        Move bestMove = new Move(mySide, 1);
+        Move bestMove = legalMoves.get(0);
         int bestMoveValue = Integer.MIN_VALUE;
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;

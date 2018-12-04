@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BotFunctions {
-
+    private static final int DEPTH = 13;
 
     public static List<Move> getLegalMoves(Board b, Side s) {
         List<Move> legalMoves = new ArrayList<>();
@@ -59,7 +59,7 @@ public class BotFunctions {
             return maxScore > minScore ? Integer.MAX_VALUE : maxScore == minScore ? 0 : Integer.MIN_VALUE;
         }
 
-        if (depth == 12) {
+        if (depth == DEPTH) {
             return heuristicValue(b, maxPlayerSide);
         }
 

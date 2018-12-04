@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BotFunctions {
-    private static final int DEPTH = 17;
+    private static final int DEPTH = 13;
 
     public static List<Move> getLegalMoves(Board b, Side s) {
         List<Move> legalMoves = new ArrayList<>();

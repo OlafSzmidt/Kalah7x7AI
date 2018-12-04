@@ -1,7 +1,14 @@
 package MKAgent;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import static MKAgent.BotFunctions.minMax;
 
 public class Bot {
@@ -60,7 +67,18 @@ public class Bot {
 
     }
 
-    public void makeMove(boolean isFirstMove, boolean isSecondMove) {
+
+    static class PlayResult {
+        Move startMove;
+        int value;
+
+        PlayResult(Move s, int r) {
+            startMove = s;
+            value = r;
+        }
+    }
+
+    public void makeMove(final boolean isFirstMove, boolean isSecondMove) throws Exception{
         madeMoveYet = true;
 
         List<Move> legalMoves = BotFunctions.getLegalMoves(boardState, mySide);
@@ -71,41 +89,79 @@ public class Bot {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
+        // Simulate swap move
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        List<Callable<PlayResult>> tasks = new ArrayList<>();
 
+        final int alphCopy = alpha;
+        final int betaCopy = beta;
         // Simulate swap move
         if (isSecondMove) {
-            int value = minMax(boardState, mySide.opposite(), false, alpha, beta, false, 1);
+            Callable callable = new Callable<PlayResult>() {
+                @Override
+                public PlayResult call() throws Exception {
+                    return new PlayResult(new Move.SwapMove(), minMax(boardState, mySide.opposite(), false, alphCopy, betaCopy, false, 1));
+                }
+            };
 
-            if (value > bestMoveValue) {
-                bestMoveValue = value;
-                bestMove = new Move.SwapMove();
-            }
+            tasks.add(callable);
 
-            alpha = bestMoveValue;
         }
 
-        for (Move m : legalMoves) {
-            Board nextBoardState = new Board(boardState);
+        for (final Move m : legalMoves) {
+            final Board nextBoardState = new Board(boardState);
+
             Side nextTurn = new Kalah(nextBoardState).makeMove(m);
 
             int value;
             if (nextTurn == mySide && !isFirstMove) {
-                value = minMax(nextBoardState, mySide, true, alpha, beta, false, 1);
+
+                Callable callable = new Callable<PlayResult>() {
+                    @Override
+                    public PlayResult call() throws Exception {
+                        return new PlayResult(m, minMax(nextBoardState, mySide, true, alphCopy, betaCopy, false, 1));
+                    }
+                };
+
+                tasks.add(callable);
             }else {
-                value = minMax(nextBoardState, mySide, false, alpha, beta, isFirstMove, 1);
-            }
+                Callable callable = new Callable<PlayResult>() {
+                    @Override
+                    public PlayResult call() throws Exception {
+                        return new PlayResult(m, minMax(nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1));
+                    }
+                };
 
-            if (value > bestMoveValue) {
-                bestMoveValue = value;
-                bestMove = m;
+                tasks.add(callable);
             }
+        }
 
-            if (bestMoveValue > alpha) {
-                alpha = bestMoveValue;
-            }
+        List<Future<PlayResult>> results = executorService.invokeAll(tasks);
 
-            if (beta <= alpha) {
-                break;
+        Iterator<Future<PlayResult>> it = results.iterator();
+
+        while (it.hasNext()) {
+            Future<PlayResult> futureResult = it.next();
+
+            if (futureResult.isDone()) {
+                PlayResult result = futureResult.get();
+                int value = result.value;
+
+
+                if (value > bestMoveValue) {
+                    bestMoveValue = value;
+                    bestMove = result.startMove;
+                }
+
+                if (bestMoveValue > alpha) {
+                    alpha = bestMoveValue;
+                }
+
+                if (beta <= alpha) {
+                    break;
+                }
+
+                it.remove();
             }
         }
 

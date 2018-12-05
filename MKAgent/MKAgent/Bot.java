@@ -90,7 +90,7 @@ public class Bot {
         int beta = Integer.MAX_VALUE;
 
         // Simulate swap move
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        ExecutorService executorService = Executors.newFixedThreadPool(7);
         List<Callable<PlayResult>> tasks = new ArrayList<>();
 
         final int alphCopy = alpha;

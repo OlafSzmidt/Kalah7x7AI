@@ -158,6 +158,7 @@ public class Bot {
                 }
 
                 if (beta <= alpha) {
+                    executorService.shutdownNow();
                     break;
                 }
 

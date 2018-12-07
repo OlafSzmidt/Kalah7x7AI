@@ -16,9 +16,25 @@ public class Bot {
     private Scanner scanner = new Scanner(System.in);
     private Board boardState = new Board(7, 7);
     private boolean madeMoveYet = false;
+    public static int heuristicNumber = 1;
+    public static boolean careAboutReplays = false;
+
+    public Bot() {}
+
 
 
     public static void main(String[] args) throws Exception {
+
+
+        if (args.length > 0) {
+            Bot.heuristicNumber = Integer.parseInt(args[0]);
+        }
+
+        if (args.length > 1) {
+            Bot.careAboutReplays = true;
+        }
+
+
         Bot b = new Bot();
         for(;;) {
             b.runBot();

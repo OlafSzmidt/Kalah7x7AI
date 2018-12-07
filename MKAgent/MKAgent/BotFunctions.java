@@ -37,7 +37,31 @@ public class BotFunctions {
         int maxSeeds = getSeedsOnBoardSide(b, maxPlayerSide);
         int minSeeds = getSeedsOnBoardSide(b, maxPlayerSide.opposite());
 
-        return (maxScore - minScore) + (maxSeeds - minSeeds);
+        switch (Bot.heuristicNumber) {
+            case 1:
+                return (maxScore - minScore) + (maxSeeds - minSeeds);
+            case 2:
+                return (maxScore - minScore);
+            case 3:
+                int seedsAgainstEmptyHoles = 0;
+
+                for(int hole=1; hole <= 7; hole++) {
+                    int seedsOp = b.getSeedsOp(maxPlayerSide, hole);
+
+                    if(seedsOp == 0) {
+                        seedsAgainstEmptyHoles += seedsOp;
+                    }
+                }
+                return (maxScore - minScore) - seedsAgainstEmptyHoles;
+            case 4:
+            default:
+                int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
+                int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
+
+                return 32 * (maxScore - minScore) + 32 * (maxSeeds - minSeeds) + (stonesInFirstTwo - stonesInLastTwo);
+        }
+
+
     }
 
     public static int minMax(Board b, Side maxPlayerSide, boolean isMaxPlayer, int alpha, int beta, boolean isSecondMove, int depth) {
@@ -92,6 +116,10 @@ public class BotFunctions {
                 if (nextTurn == board_side) {
                     // play again
                     value = minMax(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1);
+
+                    if (Bot.careAboutReplays) {
+                        value += 1;
+                    }
                 } else {
                     value = minMax(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1);
                 }
@@ -141,7 +169,11 @@ public class BotFunctions {
                 int value;
                 if (nextTurn == board_side) {
                     // play again
-                    value = minMax(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1);
+                    value = minMax(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1) ;
+
+                    if (Bot.careAboutReplays) {
+                        value -= 1;
+                    }
                 } else {
                     value = minMax(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1);
                 }

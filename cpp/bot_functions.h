@@ -25,7 +25,6 @@ int heuristicValue(const Board& b, Side maxPlayerSide) {
     int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
 
     int value = 32 * (maxScore - minScore) + 32 * (maxSeeds - minSeeds);
-    //std::cerr << value << "\n";
 
     return value;
 }

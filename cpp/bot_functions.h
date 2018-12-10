@@ -58,6 +58,10 @@ bool isMoveIllegal(const Move& m) {
     return m.hole == -1;
 }
 
+bool isMoveLegal(const Move& m) {
+    return m.hole != -1;
+}
+
 int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha, int beta, const bool isSecondMove, const int depth) {
     Side board_side;
 

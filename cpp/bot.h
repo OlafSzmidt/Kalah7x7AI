@@ -79,7 +79,7 @@ void doMove(bool isFirstMove, bool isSecondMove) {
             std::array<Move, 7> legalMoves = getLegalMoves(boardState, mySide);
 
 
-            Move bestMove = legalMoves.at(0);
+            Move bestMove = *std::find_if(legalMoves.begin(), legalMoves.end(), isMoveLegal);
             int bestMoveValue = std::numeric_limits<int>::lowest();
             int alpha = std::numeric_limits<int>::lowest();
             int beta = std::numeric_limits<int>::max();

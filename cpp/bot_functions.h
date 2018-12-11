@@ -10,24 +10,59 @@
 #include <algorithm>
 #include <limits>
 
-const int DEPTH = 15;
+const int DEPTH = 13;
 
 int getSeedsOnBoardSide(const Board& b, Side s);
 
-int heuristicValue(const Board& b, Side maxPlayerSide) {
-    int maxScore = b.getSeedsInStore(maxPlayerSide);
-    int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
+struct DefaultHeuristic {
 
-    int maxSeeds = getSeedsOnBoardSide(b, maxPlayerSide);
-    int minSeeds = getSeedsOnBoardSide(b, opposideSide(maxPlayerSide));
+    static int get(const Board& b, Side maxPlayerSide) {
+        int maxScore = b.getSeedsInStore(maxPlayerSide);
+        int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
 
-    int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
-    int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
+        int maxSeeds = getSeedsOnBoardSide(b, maxPlayerSide);
+        int minSeeds = getSeedsOnBoardSide(b, opposideSide(maxPlayerSide));
 
-    int value = 32 * (maxScore - minScore) + 32 * (maxSeeds - minSeeds);
+        int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
+        int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
 
-    return value;
-}
+        int value = 23 * (maxScore - minScore) - 15 * (maxSeeds - minSeeds) - 12 * (stonesInFirstTwo - stonesInLastTwo);
+
+        return value;
+    }
+};
+
+struct LayeredHeuristic {
+    static constexpr std::array<std::array<int, 3>, 4> weights = {{ {-71, -32, -43},
+                                                                      {-46, -23, -49},
+                                                                      {-68, -28, -57},
+                                                                      {-25, -37, -62}}};
+
+    static int get(const Board& b, Side maxPlayerSide) {
+        int maxScore = b.getSeedsInStore(maxPlayerSide);
+        int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
+
+        int maxSeeds = getSeedsOnBoardSide(b, maxPlayerSide);
+        int minSeeds = getSeedsOnBoardSide(b, opposideSide(maxPlayerSide));
+
+        int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
+        int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
+
+        int totalOutput = 0;
+        for (int i = 0; i < 3; ++i) {
+            auto& weightVector = weights[i];
+            int output = 0;
+
+            output+= weightVector[0] * (maxScore - minScore);
+            output+= weightVector[1] * (maxSeeds - minSeeds);
+            output+= weightVector[2] * (stonesInFirstTwo - stonesInLastTwo);
+
+            totalOutput += output * weights[3][i];
+        }
+
+        return totalOutput;
+    }
+};
 
 std::array<Move, 7> getLegalMoves(const Board& b, Side s) {
     std::array<Move, 7> legalMoves;
@@ -61,6 +96,8 @@ bool isMoveLegal(const Move& m) {
     return m.hole != -1;
 }
 
+
+template <typename Heuristic>
 int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha, int beta, const bool isSecondMove, const int depth) {
     Side board_side;
 
@@ -83,8 +120,7 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
     }
 
     if (depth == DEPTH) {
-        int value = heuristicValue(b, maxPlayerSide);
-        return heuristicValue(b, maxPlayerSide);
+        return Heuristic::get(b, maxPlayerSide);
     }
 
     if (isMaxPlayer) {
@@ -93,7 +129,7 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
         if (isSecondMove) {
             // Then swap is available
 
-            int value = minMax(b, opposideSide(maxPlayerSide), !isMaxPlayer, alpha, beta, false, depth + 1);
+            int value = minMax<Heuristic>(b, opposideSide(maxPlayerSide), !isMaxPlayer, alpha, beta, false, depth + 1);
 
             if (value > bestValue) {
                 bestValue = value;
@@ -116,9 +152,9 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
                 int value;
                 if (nextTurn == board_side) {
                     // play again
-                    value = minMax(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1);
+                    value = minMax<Heuristic>(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1);
                 } else {
-                    value = minMax(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1);
+                    value = minMax<Heuristic>(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1);
                 }
 
                 if (value > bestValue) {
@@ -144,7 +180,7 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
         if (isSecondMove) {
             // Then swap is available
 
-            int value = minMax(b, opposideSide(maxPlayerSide), !isMaxPlayer, alpha, beta, false, depth + 1);
+            int value = minMax<Heuristic>(b, opposideSide(maxPlayerSide), !isMaxPlayer, alpha, beta, false, depth + 1);
 
             if (value < bestValue) {
                 bestValue = value;
@@ -167,10 +203,10 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
                 int value;
                 if (nextTurn == board_side) {
                     // play again
-                    value = minMax(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1) ;
+                    value = minMax<Heuristic>(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1) ;
 
                 } else {
-                    value = minMax(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1);
+                    value = minMax<Heuristic>(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1);
                 }
 
                 if (value < bestValue) {

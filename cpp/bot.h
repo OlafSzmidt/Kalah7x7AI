@@ -9,6 +9,7 @@
 #include <future>
 #include <utility>
 
+template <typename H = DefaultHeuristic>
 struct Bot {
 Side mySide;
 Board boardState;
@@ -91,7 +92,7 @@ void doMove(bool isFirstMove, bool isSecondMove) {
             int betaCopy = beta;
             // Simulate swap move
             if (isSecondMove) {
-                tasks.emplace_back(Move::make_swapMove(), std::async(minMax, boardState, opposideSide(mySide), false, alphCopy, betaCopy, false, 1));
+                tasks.emplace_back(Move::make_swapMove(), std::async(minMax<H>, boardState, opposideSide(mySide), false, alphCopy, betaCopy, false, 1));
             }
 
             for (auto i = legalMoves.begin(); i != legalMoves.end(); ++i) {
@@ -103,9 +104,9 @@ void doMove(bool isFirstMove, bool isSecondMove) {
                     Side nextTurn = makeMove(nextBoardState, m);
 		   
                     if (nextTurn == mySide && !isFirstMove) {
-                        tasks.emplace_back(m , std::async(minMax, nextBoardState, mySide, true, alphCopy, betaCopy, false, 1));
+                        tasks.emplace_back(m , std::async(minMax<H>, nextBoardState, mySide, true, alphCopy, betaCopy, false, 1));
                     }else {
-                        tasks.emplace_back(m , std::async(minMax, nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1));
+                        tasks.emplace_back(m , std::async(minMax<H>, nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1));
                     }
 	           
                 }

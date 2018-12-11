@@ -4,7 +4,7 @@
 
 int main() {
     try{
-      Bot b;
+      Bot<> b;
 
       for (;;) {
         b.runBot();

@@ -1,0 +1,3 @@
+C:/Users/mjki4sb3/Kalah7x7AI/cpp/cmake-build-debug/CMakeFiles/untitled1.dir
+C:/Users/mjki4sb3/Kalah7x7AI/cpp/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/mjki4sb3/Kalah7x7AI/cpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir

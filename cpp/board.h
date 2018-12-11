@@ -6,6 +6,7 @@
 #define UNTITLED1_BOARD_H
 
 #include <array>
+#include <cstdint>
 
 enum Side {NORTH, SOUTH};
 
@@ -74,6 +75,10 @@ struct Board {
             case SOUTH: return SOUTH_ROW;
             default: return -1;  // should never get here
         }
+    }
+
+    void operator=(const Board& b) {
+        board = b.board;
     }
 
     Board ()

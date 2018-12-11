@@ -9,6 +9,7 @@
 #include <future>
 #include <utility>
 
+template <typename H>
 struct Bot {
 Side mySide;
 Board boardState;
@@ -16,10 +17,25 @@ bool madeMoveYet = false;
 static const int heuristicNumber = 1;
 static const bool careAboutReplays = false;
 
-Bot() {}
 
+Move onStart(bool amISouth) {
+    if (amISouth) {
+        mySide = Side(SOUTH);
+        return doMove(true, false);
+    } else {
+        mySide = Side(NORTH);
+    }
+}
 
+void onState(const MoveTurn& moveTurn) {
+    if (moveTurn.again) {
+        doMove(false, !madeMoveYet);
+    }
 
+    if (moveTurn.move == -1) {
+        mySide = opposideSide(mySide);
+    }
+}
 
 
 void runBot() {
@@ -64,16 +80,17 @@ void runBot() {
 
 }
 
+template <typename T>
 struct PlayResult {
     Move startMove;
     std::future<int> value;
 
-    PlayResult(const Move& m, std::future<int>&& val) : startMove(m), value(std::forward<std::future<int>>(val))
+    PlayResult(const Move& m, std::future<T>&& val) : startMove(m), value(std::forward<std::future<T>>(val))
     {}
 };
 
 
-void doMove(bool isFirstMove, bool isSecondMove) {
+Move doMove(bool isFirstMove, bool isSecondMove) {
 	    madeMoveYet = true;
 
             std::array<Move, 7> legalMoves = getLegalMoves(boardState, mySide);
@@ -85,13 +102,13 @@ void doMove(bool isFirstMove, bool isSecondMove) {
             int beta = std::numeric_limits<int>::max();
 
             // Simulate swap move
-            std::vector<PlayResult> tasks;
+            std::vector<PlayResult<int>> tasks;
 
             int alphCopy = alpha;
             int betaCopy = beta;
             // Simulate swap move
             if (isSecondMove) {
-                tasks.emplace_back(Move::make_swapMove(), std::async(minMax, boardState, opposideSide(mySide), false, alphCopy, betaCopy, false, 1));
+                tasks.emplace_back(Move::make_swapMove(), std::async(minMax<H>, boardState, opposideSide(mySide), false, alphCopy, betaCopy, false, 1));
             }
 
             for (auto i = legalMoves.begin(); i != legalMoves.end(); ++i) {
@@ -103,9 +120,9 @@ void doMove(bool isFirstMove, bool isSecondMove) {
                     Side nextTurn = makeMove(nextBoardState, m);
 		   
                     if (nextTurn == mySide && !isFirstMove) {
-                        tasks.emplace_back(m , std::async(minMax, nextBoardState, mySide, true, alphCopy, betaCopy, false, 1));
+                        tasks.emplace_back(m , std::async(minMax<H>, nextBoardState, mySide, true, alphCopy, betaCopy, false, 1));
                     }else {
-                        tasks.emplace_back(m , std::async(minMax, nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1));
+                        tasks.emplace_back(m , std::async(minMax<H>, nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1));
                     }
 	           
                 }
@@ -132,6 +149,8 @@ void doMove(bool isFirstMove, bool isSecondMove) {
             }
 
             std::cout << moveMsg;
+
+            return bestMove;
     }
 
 

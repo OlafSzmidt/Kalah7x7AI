@@ -4,8 +4,8 @@
 
 using namespace std;
 
-array<int, 2> weights1 = {1, 1};
-array<int, 2> weights2 = {1, 1};
+array<int, 3> weights1 = {1, 1, 1};
+array<int, 3> weights2 = {1, 1, 1};
 
 int heuristic1(const Board& b, Side maxPlayerSide) {
     int maxScore = b.getSeedsInStore(maxPlayerSide);
@@ -17,7 +17,7 @@ int heuristic1(const Board& b, Side maxPlayerSide) {
     int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
     int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
 
-    int value = weights1[0] * (maxScore - minScore) + weights1[1] * (maxSeeds - minSeeds);
+    int value = weights1[0] * (maxScore - minScore) + weights1[1] * (maxSeeds - minSeeds) + weights1[2] * (stonesInFirstTwo - stonesInLastTwo);
 
     return value;
 }
@@ -32,7 +32,7 @@ int heuristic2(const Board& b, Side maxPlayerSide) {
     int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
     int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
 
-    int value = weights2[0] * (maxScore - minScore) + weights2[1] * (maxSeeds - minSeeds);
+    int value = weights2[0] * (maxScore - minScore) + weights2[1] * (maxSeeds - minSeeds) + weights2[2] * (stonesInFirstTwo - stonesInLastTwo);
 
     return value;
 }
@@ -107,16 +107,20 @@ int main() {
         bool b1Wins = playGame(b1, b2);
 
         if (b1Wins) {
-            weights2[0] = weights1[0] + rand() % 10 - 5;
-            weights2[1] = weights1[1] + rand() % 10 - 5;
+            for (int i = 0; i < weights1.size(); ++i) {
+                weights2[i] = weights1[i] + rand() % 10 - 5;
+                std::cout << weights1[i] << ", ";
+            }
 
-            std::cout << weights1[0] << ", " << weights1[1] << "\n";
+            cout << "\n";
         }
         else {
-            weights1[0] = weights2[0] + rand() % 10 - 5;
-            weights1[1] = weights2[1] + rand() % 10 - 5;
+            for (int i = 0; i < weights1.size(); ++i) {
+                weights1[i] = weights2[i] + rand() % 10 - 5;
+                std::cout << weights2[i] << ", ";
+            }
 
-            std::cout << weights2[0] << ", " << weights2[1] << "\n";
+            cout << "\n";
         }
 
 

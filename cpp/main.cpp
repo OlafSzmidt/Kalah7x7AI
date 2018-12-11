@@ -55,39 +55,48 @@ bool playGame(Bot& b, Bot& b2) {
 
     Move secondMove = b2.doMove(false, true);
 
+    Side playSide;
     if (secondMove.swapMove) {
         bSide = opposideSide(bSide);
         b2Side = opposideSide(b2Side);
 
         b.mySide = bSide;
         b2.mySide = b2Side;
+
+        playSide = bSide;
     }
     else {
-        Side playSide = makeMove(globalBoard, secondMove);
+        playSide = makeMove(globalBoard, secondMove);
+    }
+
+
+    b.boardState = globalBoard;
+    b2.boardState = globalBoard;
+
+
+    while (true) {
+        Bot& chosenBot = playSide == bSide ? b: b2;
+
+        Move move = chosenBot.doMove(false, false);
+        Side nextTurnSide = makeMove(globalBoard, move);
         b.boardState = globalBoard;
         b2.boardState = globalBoard;
 
+        playSide = nextTurnSide;
 
-        while (true) {
-            Bot& chosenBot = playSide == bSide ? b: b2;
-
-            Move move = chosenBot.doMove(false, false);
-            Side nextTurnSide = makeMove(globalBoard, move);
-            b.boardState = globalBoard;
-            b2.boardState = globalBoard;
-
-            playSide = nextTurnSide;
-
-            if (!hasLegalMoves(globalBoard, playSide)) {
-                break;
-            }
+        if (!hasLegalMoves(globalBoard, playSide)) {
+            break;
         }
-
-        int bScore = globalBoard.getSeedsInStore(bSide) + getSeedsOnBoardSide(globalBoard, bSide);
-        int b2Score = globalBoard.getSeedsInStore(b2Side) + getSeedsOnBoardSide(globalBoard, b2Side);
-
-        return bScore > b2Score;
     }
+
+    int bScore = globalBoard.getSeedsInStore(bSide) + getSeedsOnBoardSide(globalBoard, bSide);
+    int b2Score = globalBoard.getSeedsInStore(b2Side) + getSeedsOnBoardSide(globalBoard, b2Side);
+
+    b = Bot(b.heuristic);
+    b2  = Bot(b2.heuristic);
+
+    return bScore > b2Score;
+
 }
 
 int main() {

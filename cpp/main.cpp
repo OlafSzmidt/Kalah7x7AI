@@ -143,9 +143,11 @@ bool playGame(Bot<H1>& b, Bot<H2>& b2) {
 
 }
 
+array<int, 3> Heuristic1::weights = {1, 1, 1};
+array<int, 3> Heuristic2::weights = {1, 1, 1};
+
 int main() {
-    Heuristic1::weights = {1, 1, 1};
-    Heuristic2::weights = {1, 1, 1};
+
 
     Bot<Heuristic1> b1;
     Bot<Heuristic2> b2;

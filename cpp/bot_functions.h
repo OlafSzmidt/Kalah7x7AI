@@ -33,10 +33,7 @@ struct DefaultHeuristic {
 };
 
 struct LayeredHeuristic {
-    static constexpr std::array<std::array<int, 3>, 4> weights = {{ {-71, -32, -43},
-                                                                      {-46, -23, -49},
-                                                                      {-68, -28, -57},
-                                                                      {-25, -37, -62}}};
+    static std::array<std::array<int, 3>, 4> weights;
 
     static int get(const Board& b, Side maxPlayerSide) {
         int maxScore = b.getSeedsInStore(maxPlayerSide);
@@ -63,6 +60,11 @@ struct LayeredHeuristic {
         return totalOutput;
     }
 };
+
+std::array<std::array<int, 3>, 4> LayeredHeuristic::weights = {{ {-71, -32, -43},
+                                                                       {-46, -23, -49},
+                                                                       {-68, -28, -57},
+                                                                       {-25, -37, -62}}};;
 
 std::array<Move, 7> getLegalMoves(const Board& b, Side s) {
     std::array<Move, 7> legalMoves;

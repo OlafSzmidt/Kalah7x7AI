@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <limits>
 
-const int DEPTH = 15;
+const int DEPTH = 10;
 
 int getSeedsOnBoardSide(const Board& b, Side s);
 
@@ -87,7 +87,8 @@ bool isMoveLegal(const Move& m) {
 }
 
 
-int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha, int beta, const bool isSecondMove, const int depth, int (*heuristic)(const Board&, Side)) {
+template <typename H>
+int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha, int beta, const bool isSecondMove, const int depth) {
     Side board_side;
 
     if (!isMaxPlayer) {
@@ -109,7 +110,7 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
     }
 
     if (depth == DEPTH) {
-        return heuristic(b, maxPlayerSide);
+        return H::call(b, maxPlayerSide);
     }
 
     if (isMaxPlayer) {
@@ -118,7 +119,7 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
         if (isSecondMove) {
             // Then swap is available
 
-            int value = minMax(b, opposideSide(maxPlayerSide), !isMaxPlayer, alpha, beta, false, depth + 1, heuristic);
+            int value = minMax<H>(b, opposideSide(maxPlayerSide), !isMaxPlayer, alpha, beta, false, depth + 1);
 
             if (value > bestValue) {
                 bestValue = value;
@@ -141,9 +142,9 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
                 int value;
                 if (nextTurn == board_side) {
                     // play again
-                    value = minMax(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1, heuristic);
+                    value = minMax<H>(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1);
                 } else {
-                    value = minMax(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1, heuristic);
+                    value = minMax<H>(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1);
                 }
 
                 if (value > bestValue) {
@@ -169,7 +170,7 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
         if (isSecondMove) {
             // Then swap is available
 
-            int value = minMax(b, opposideSide(maxPlayerSide), !isMaxPlayer, alpha, beta, false, depth + 1, heuristic);
+            int value = minMax<H>(b, opposideSide(maxPlayerSide), !isMaxPlayer, alpha, beta, false, depth + 1);
 
             if (value < bestValue) {
                 bestValue = value;
@@ -192,10 +193,10 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
                 int value;
                 if (nextTurn == board_side) {
                     // play again
-                    value = minMax(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1, heuristic) ;
+                    value = minMax<H>(nextBoardState, maxPlayerSide, isMaxPlayer, alpha, beta, false, depth + 1) ;
 
                 } else {
-                    value = minMax(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1, heuristic);
+                    value = minMax<H>(nextBoardState, maxPlayerSide, !isMaxPlayer, alpha, beta, false, depth + 1);
                 }
 
                 if (value < bestValue) {

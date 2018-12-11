@@ -3,7 +3,7 @@
 
 
 template <typename H1, typename H2>
-bool playGame(Bot<H1>& b, Bot<H2>& b2) {
+bool playGame(Bot& b, Bot& b2) {
     Board globalBoard;
 
     Side bSide(SOUTH);
@@ -59,7 +59,7 @@ int main() {
 
     try{
 
-        Bot<DefaultHeuristic> b;
+        Bot b(defaultHeuristic);
       for (;;) {
         b.runBot();
       }

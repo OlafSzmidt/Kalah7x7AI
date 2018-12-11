@@ -26,7 +26,7 @@
         <entry file="file://$PROJECT_DIR$/board.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1592">
-              <caret line="300" lean-forward="true" selection-start-line="300" selection-end-line="300" />
+              <caret line="300" selection-start-line="300" selection-end-line="300" />
               <folding>
                 <element signature="e#96#112#0" expanded="true" />
               </folding>
@@ -42,11 +42,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="935">
-              <caret line="55" column="1" selection-start-line="55" selection-start-column="1" selection-end-line="55" selection-end-column="1" />
+            <state relative-caret-position="317">
+              <caret line="61" column="32" selection-start-line="61" selection-start-column="32" selection-end-line="61" selection-end-column="32" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
-                <element signature="e#48#74#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -55,11 +54,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bot_functions.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="37">
-              <caret line="196" lean-forward="true" selection-start-line="196" selection-end-line="196" />
-              <folding>
-                <element signature="e#1696#1705#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="334">
+              <caret line="198" column="17" lean-forward="true" selection-start-line="198" selection-start-column="17" selection-end-line="198" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -76,7 +72,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include/future">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="351">
+            <state relative-caret-position="181">
               <caret line="1139" selection-start-line="1139" selection-end-line="1139" />
             </state>
           </provider>
@@ -85,13 +81,20 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bot.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="572">
-              <caret line="114" column="29" lean-forward="true" selection-start-line="114" selection-start-column="29" selection-end-line="114" selection-end-column="29" />
+            <state relative-caret-position="428">
+              <caret line="106" column="55" lean-forward="true" selection-start-line="106" selection-start-column="55" selection-end-line="106" selection-end-column="55" />
               <folding>
                 <element signature="e#50#68#0" expanded="true" />
-                <element signature="e#183#195#0" expanded="true" />
-                <element signature="e#1743#1755#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include/vector">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="1616" selection-start-line="1616" selection-end-line="1616" />
             </state>
           </provider>
         </entry>
@@ -106,6 +109,12 @@
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>asks</find>
+      <find>tasks</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -178,12 +187,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1544544708897</updated>
-      <workItem from="1544544712911" duration="4706000" />
+      <workItem from="1544544712911" duration="5935000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4706000" />
+    <option name="totallyTimeSpent" value="5935000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -225,17 +234,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include/future">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="351">
-          <caret line="1139" selection-start-line="1139" selection-end-line="1139" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/board.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1592">
-          <caret line="300" lean-forward="true" selection-start-line="300" selection-end-line="300" />
+          <caret line="300" selection-start-line="300" selection-end-line="300" />
           <folding>
             <element signature="e#96#112#0" expanded="true" />
           </folding>
@@ -251,33 +253,41 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="935">
-          <caret line="55" column="1" selection-start-line="55" selection-start-column="1" selection-end-line="55" selection-end-column="1" />
+        <state relative-caret-position="317">
+          <caret line="61" column="32" selection-start-line="61" selection-start-column="32" selection-end-line="61" selection-end-column="32" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
-            <element signature="e#48#74#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include/future">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="1139" selection-start-line="1139" selection-end-line="1139" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bot_functions.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="37">
-          <caret line="196" lean-forward="true" selection-start-line="196" selection-end-line="196" />
-          <folding>
-            <element signature="e#1696#1705#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="334">
+          <caret line="198" column="17" lean-forward="true" selection-start-line="198" selection-start-column="17" selection-end-line="198" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include/vector">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="1616" selection-start-line="1616" selection-end-line="1616" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bot.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="572">
-          <caret line="114" column="29" lean-forward="true" selection-start-line="114" selection-start-column="29" selection-end-line="114" selection-end-column="29" />
+        <state relative-caret-position="428">
+          <caret line="106" column="55" lean-forward="true" selection-start-line="106" selection-start-column="55" selection-end-line="106" selection-end-column="55" />
           <folding>
             <element signature="e#50#68#0" expanded="true" />
-            <element signature="e#183#195#0" expanded="true" />
-            <element signature="e#1743#1755#0" expanded="true" />
           </folding>
         </state>
       </provider>

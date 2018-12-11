@@ -16,7 +16,7 @@ int dotProduct(array<int, Length> first, array<int, Length> second) {
 }
 
 struct Heuristic1 {
-    static array<int, 3> weights;
+    static array<array<int, 3>, 4> weights;
 
     static int call(const Board& b, Side maxPlayerSide) {
         int maxScore = b.getSeedsInStore(maxPlayerSide);
@@ -28,19 +28,28 @@ struct Heuristic1 {
         int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
         int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
 
-        array<int, 3> featuresVector;
+        array<array<int, 3>, 3> featureVectors;
 
-        featuresVector[0] = maxScore - minScore;
-        featuresVector[1] = maxSeeds - minSeeds;
-        featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
+        for (int i = 0; i < featureVectors.size(); ++i) {
+            auto& featureVector = featureVectors[i];
+            featureVector[0] = maxScore - minScore;
+            featureVector[1] = maxSeeds - minSeeds;
+            featureVector[2] = stonesInFirstTwo - stonesInLastTwo;
+        }
 
-        return dotProduct<3>(featuresVector, weights);
+        array<int, 3> outputFeatures;
+
+        for (int i = 0; i < weights.size() - 1; ++i) {
+            outputFeatures[i] = dotProduct<3>(featureVectors[i], weights[i]);
+        }
+
+        return dotProduct<3>(outputFeatures, weights[weights.size() - 1]);
     }
 };
 
 
 struct Heuristic2 {
-    static array<int, 3> weights;
+    static array<array<int, 3>, 4> weights;
 
     static int call(const Board& b, Side maxPlayerSide) {
         int maxScore = b.getSeedsInStore(maxPlayerSide);
@@ -52,20 +61,31 @@ struct Heuristic2 {
         int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
         int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
 
-        array<int, 3> featuresVector;
+        array<array<int, 3>, 3> featureVectors;
 
-        featuresVector[0] = maxScore - minScore;
-        featuresVector[1] = maxSeeds - minSeeds;
-        featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
+        for (int i = 0; i < featureVectors.size(); ++i) {
+            auto& featureVector = featureVectors[i];
+            featureVector[0] = maxScore - minScore;
+            featureVector[1] = maxSeeds - minSeeds;
+            featureVector[2] = stonesInFirstTwo - stonesInLastTwo;
+        }
 
-        return dotProduct<3>(featuresVector, weights);
+        array<int, 3> outputFeatures;
+
+        for (int i = 0; i < weights.size() - 1; ++i) {
+            outputFeatures[i] = dotProduct<3>(featureVectors[i], weights[i]);
+        }
+
+        return dotProduct<3>(outputFeatures, weights[weights.size() - 1]);
     }
 };
 
 template <typename Winner, typename Loser>
 void updateWeights() {
     for (int i = 0; i < Winner::weights.size(); ++i) {
-        Loser::weights[i] = Winner::weights[i] + rand() % 40 - 20;
+        for (int j = 0; j < Winner::weights[i].size(); ++j) {
+            Loser::weights[i][j] = Winner::weights[i][j] + rand() % 40 - 20;
+        }
     }
 }
 
@@ -76,6 +96,19 @@ void printArray(const array<T, Length> array) {
     }
 
     cout << "\n\n";
+}
+
+template <typename T, int Length1, int Length2>
+void print2DArray(const array<array<T, Length2>, Length1> twoDArray) {
+    for (int i = 0; i < Length1; ++i) {
+        for (int j = 0; j < Length2; ++j) {
+            cout << twoDArray[i][j] << ", ";
+        }
+
+        cout << "\n";
+    }
+
+    cout << "\n";
 }
 
 template <typename H1, typename H2>
@@ -143,8 +176,15 @@ bool playGame(Bot<H1>& b, Bot<H2>& b2) {
 
 }
 
-array<int, 3> Heuristic1::weights = {1, 1, 1};
-array<int, 3> Heuristic2::weights = {1, 1, 1};
+array<array<int, 3>, 4> Heuristic1::weights = {{{1, 1, 1},
+                                               {1, 1, 1},
+                                               {1, 1, 1},
+                                               {1,1, 1}}};
+
+array<array<int, 3>, 4> Heuristic2::weights = {{{1, 1, 1},
+                                               {1, 1, 1},
+                                               {1, 1, 1},
+                                               {1,1, 1}}};
 
 int main() {
 
@@ -157,11 +197,11 @@ int main() {
 
         if (b1Wins) {
             updateWeights<Heuristic1, Heuristic2>();
-            printArray<int, 3>(Heuristic1::weights);
+            print2DArray<int, 4, 3>(Heuristic1::weights);
         }
         else {
             updateWeights<Heuristic2, Heuristic1>();
-            printArray<int, 3>(Heuristic2::weights);
+            print2DArray<int, 4, 3>(Heuristic2::weights);
         }
 
 

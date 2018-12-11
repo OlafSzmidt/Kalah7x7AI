@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <limits>
 
-const int DEPTH = 14;
+const int DEPTH = 15;
 
 int getSeedsOnBoardSide(const Board& b, Side s);
 

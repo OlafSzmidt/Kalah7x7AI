@@ -90,10 +90,10 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
     int maxScore = b.getSeedsInStore(maxPlayerSide);
     int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
 
-    if (maxScore - minScore > 30) {
+    if (maxScore - minScore > 10) {
         return std::numeric_limits<int>::max();
     }
-    else if (minScore - maxScore > 30) {
+    else if (minScore - maxScore > 10) {
         return std::numeric_limits<int>::min();
     }
 

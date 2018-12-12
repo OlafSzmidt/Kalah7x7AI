@@ -45,11 +45,19 @@ struct Heuristic1 {
 
         return dotProduct<3>(outputFeatures, weights[weights.size() - 1]);
     }
+
+    static void updateLoser() {
+        for (int i = 0; i < weights.size(); ++i) {
+            for (int j = 0; j < weights[i].size(); ++j) {
+                weights[i][j] = weights[i][j] + rand() % 10 - 5;
+            }
+        }
+    }
 };
 
 
 struct Heuristic2 {
-    static array<array<int, 3>, 4> weights;
+    static array<int, 3> weights;
 
     static int call(const Board& b, Side maxPlayerSide) {
         int maxScore = b.getSeedsInStore(maxPlayerSide);
@@ -61,32 +69,24 @@ struct Heuristic2 {
         int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
         int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
 
-        array<array<int, 3>, 3> featureVectors;
+        array<int, 3> featureVector;
+        featureVector[0] = maxScore - minScore;
+        featureVector[1] = maxSeeds - minSeeds;
+        featureVector[2] = stonesInFirstTwo - stonesInLastTwo;
 
-        for (int i = 0; i < featureVectors.size(); ++i) {
-            auto& featureVector = featureVectors[i];
-            featureVector[0] = maxScore - minScore;
-            featureVector[1] = maxSeeds - minSeeds;
-            featureVector[2] = stonesInFirstTwo - stonesInLastTwo;
+        return dotProduct<3>(featureVector, weights);
+    }
+
+    static void updateLoser() {
+        for (int i = 0; i < weights.size(); ++i) {
+            weights[i] = weights[i] + rand() % 10 - 5;
         }
-
-        array<int, 3> outputFeatures;
-
-        for (int i = 0; i < weights.size() - 1; ++i) {
-            outputFeatures[i] = dotProduct<3>(featureVectors[i], weights[i]);
-        }
-
-        return dotProduct<3>(outputFeatures, weights[weights.size() - 1]);
     }
 };
 
 template <typename Winner, typename Loser>
 void updateWeights() {
-    for (int i = 0; i < Winner::weights.size(); ++i) {
-        for (int j = 0; j < Winner::weights[i].size(); ++j) {
-            Loser::weights[i][j] = Winner::weights[i][j] + rand() % 40 - 20;
-        }
-    }
+    Loser::updateLoser();
 }
 
 template <typename T, int Length>
@@ -181,10 +181,7 @@ array<array<int, 3>, 4> Heuristic1::weights = {{{1, 1, 1},
                                                {1, 1, 1},
                                                {1,1, 1}}};
 
-array<array<int, 3>, 4> Heuristic2::weights = {{{1, 1, 1},
-                                               {1, 1, 1},
-                                               {1, 1, 1},
-                                               {1,1, 1}}};
+array<int, 3> Heuristic2::weights = {23, -15, -12};
 
 int main() {
 
@@ -201,7 +198,7 @@ int main() {
         }
         else {
             updateWeights<Heuristic2, Heuristic1>();
-            print2DArray<int, 4, 3>(Heuristic2::weights);
+            printArray<int, 3>(Heuristic2::weights);
         }
 
 

@@ -48,13 +48,15 @@ void runBot() {
                 {
                     MoveTurn moveTurn(interpretStateMsg(input, boardState));
 
+                    if (moveTurn.move == -1) {
+                        mySide = opposideSide(mySide);
+                    }
+
                     if (moveTurn.again) {
                         doMove(false, !madeMoveYet);
                     }
 
-                    if (moveTurn.move == -1) {
-                        mySide = opposideSide(mySide);
-                    }
+
 
                     break;
                 }

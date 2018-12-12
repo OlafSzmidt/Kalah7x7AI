@@ -87,16 +87,6 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
         return heuristicValue(b, maxPlayerSide);
     }
 
-    int maxScore = b.getSeedsInStore(maxPlayerSide);
-    int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
-
-    if (maxScore - minScore > 10) {
-        return std::numeric_limits<int>::max() - 1;
-    }
-    else if (minScore - maxScore > 10) {
-        return std::numeric_limits<int>::min() + 1;
-    }
-
     if (isMaxPlayer) {
         int bestValue = std::numeric_limits<int>::lowest();
 

@@ -72,6 +72,15 @@ struct PlayResult {
     {}
 };
 
+struct LocalPlayResult {
+    Move startMove;
+    std::function<int()> task;
+
+    LocalPlayResult(const Move& m, const std::function<int()>& f) : startMove(m), task(f)
+    {}
+};
+
+
 
 void doMove(bool isFirstMove, bool isSecondMove) {
 	    madeMoveYet = true;
@@ -94,24 +103,50 @@ void doMove(bool isFirstMove, bool isSecondMove) {
                 tasks.emplace_back(Move::make_swapMove(), std::async(minMax, boardState, opposideSide(mySide), false, alphCopy, betaCopy, false, 1));
             }
 
+            std::vector<LocalPlayResult> localPlayResult;
+            bool capturedLocalTask = false;
+
             for (auto i = legalMoves.begin(); i != legalMoves.end(); ++i) {
                 Move& m = *i;
+
 
                 if (m.hole != -1) {
                     Board nextBoardState(boardState);
 
                     Side nextTurn = makeMove(nextBoardState, m);
-		   
+
                     if (nextTurn == mySide && !isFirstMove) {
-                        tasks.emplace_back(m , std::async(minMax, nextBoardState, mySide, true, alphCopy, betaCopy, false, 1));
+                        if (!capturedLocalTask) {
+                            std::cerr << "Capturing\n";
+                            capturedLocalTask = true;
+                            auto localTask = [nextBoardState, this, alphCopy, betaCopy]() {return minMax(nextBoardState, mySide, true, alphCopy, betaCopy, false, 1);};
+                            localPlayResult.emplace_back(m, localTask);
+                        }
+                        else {
+                            tasks.emplace_back(m , std::async(minMax, nextBoardState, mySide, true, alphCopy, betaCopy, false, 1));
+                        }
                     }else {
-                        tasks.emplace_back(m , std::async(minMax, nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1));
+                        if (!capturedLocalTask) {
+                            std::cerr << "Capturing\n";
+                            capturedLocalTask = true;
+                            auto localTask = [nextBoardState, this, alphCopy, betaCopy, isFirstMove]() {return minMax(nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1);};
+                            localPlayResult.emplace_back(m, localTask);
+
+                        }
+                        else {
+                            tasks.emplace_back(m , std::async(minMax, nextBoardState, mySide, false, alphCopy, betaCopy, isFirstMove, 1));
+                        }
                     }
 	           
                 }
             }
-	    
-            
+
+
+            bestMoveValue = localPlayResult.front().task();
+            bestMove = localPlayResult.front().startMove;
+
+            std::cerr << "Local Move " << bestMove.hole << "\n";
+
             for (auto i = tasks.begin(); i != tasks.end(); ++i) {
                 int value = i->value.get();
                

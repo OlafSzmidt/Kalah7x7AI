@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <limits>
 
-const int DEPTH = 15;
+const int DEPTH = 14;
 
 int getSeedsOnBoardSide(const Board& b, Side s);
 
@@ -24,7 +24,7 @@ int heuristicValue(const Board& b, Side maxPlayerSide) {
     int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
     int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
 
-    int value = 32 * (maxScore - minScore) + 32 * (maxSeeds - minSeeds);
+    int value = 23 * (maxScore - minScore) -15 * (maxSeeds - minSeeds) - 12 * (stonesInFirstTwo - stonesInLastTwo);
 
     return value;
 }

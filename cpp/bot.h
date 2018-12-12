@@ -102,7 +102,7 @@ void doMove(bool isFirstMove, bool isSecondMove) {
             int betaCopy = beta;
             // Simulate swap move
             if (isSecondMove) {
-                tasks.emplace_back(Move::make_swapMove(), std::async(minMax, boardState, opposideSide(mySide), false, alphCopy, betaCopy, false, 1));
+                tasks.emplace_back(Move::make_swapMove(), std::async(iterative_deepening, Node(boardState, false, opposideSide(mySide)), 8));
             }
 
             std::vector<LocalPlayResult> localPlayResult;

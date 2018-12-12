@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <limits>
 
-const int DEPTH = 15;
+const int DEPTH = 16;
 
 int getSeedsOnBoardSide(const Board& b, Side s);
 
@@ -91,10 +91,10 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
     int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
 
     if (maxScore - minScore > 10) {
-        return std::numeric_limits<int>::max();
+        return std::numeric_limits<int>::max() - 1;
     }
     else if (minScore - maxScore > 10) {
-        return std::numeric_limits<int>::min();
+        return std::numeric_limits<int>::min() + 1;
     }
 
     if (isMaxPlayer) {

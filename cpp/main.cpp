@@ -16,7 +16,7 @@ int dotProduct(array<int, Length> first, array<int, Length> second) {
 }
 
 struct Heuristic1 {
-    static array<int, 5> weights;
+    static array<int, 2> weights;
 
     static int call(const Board& b, Side maxPlayerSide, Side playSide) {
         int maxScore = b.getSeedsInStore(maxPlayerSide);
@@ -32,21 +32,24 @@ struct Heuristic1 {
 
         featuresVector[0] = maxScore - minScore;
         featuresVector[1] = maxSeeds - minSeeds;
-        featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
 
-        featuresVector[3] = 49 - minScore;
+        int playAgain= 0;
 
-        int playAgain = canPlayAgain(b, playSide) ? 1 : -1;
-        int playAgainFactor =  maxPlayerSide == playSide ? 1 : -1;
-        featuresVector[4] = playAgain * playAgainFactor;
-
-        return dotProduct<weights.size()>(featuresVector, weights);
+        if (canPlayAgain(b, playSide)) {
+            if (playAgain == maxPlayerSide) {
+                playAgain += 5;
+            }
+            else {
+                playAgain -= 5;
+            }
+        }
+        return dotProduct<weights.size()>(featuresVector, weights) + playAgain;
     }
 };
 
 
 struct Heuristic2 {
-    static array<int, 5> weights;
+    static array<int, 2> weights;
 
     static int call(const Board& b, Side maxPlayerSide, Side playSide) {
         int maxScore = b.getSeedsInStore(maxPlayerSide);
@@ -62,15 +65,18 @@ struct Heuristic2 {
 
         featuresVector[0] = maxScore - minScore;
         featuresVector[1] = maxSeeds - minSeeds;
-        featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
 
-        featuresVector[3] = 49 - minScore;
+        int playAgain= 0;
 
-        int playAgain = canPlayAgain(b, playSide) ? 1 : -1;
-        int playAgainFactor =  maxPlayerSide == playSide ? 1 : -1;
-        featuresVector[4] = playAgain * playAgainFactor;
-
-        return dotProduct<weights.size()>(featuresVector, weights);
+        if (canPlayAgain(b, playSide)) {
+            if (playAgain == maxPlayerSide) {
+                playAgain += 5;
+            }
+            else {
+                playAgain -= 5;
+            }
+        }
+        return dotProduct<weights.size()>(featuresVector, weights) + playAgain;
     }
 };
 
@@ -188,9 +194,8 @@ bool playGame(Bot<H1, NoOutput1>& b, Bot<H2, NoOutput2>& b2) {
 }
 
 
-array<int, 5> Heuristic1::weights = {1, 1, 1, 1, 1};
-array<int, 5> Heuristic2::weights = {1, 1, 1, 1, 1};
-array<int, 5> Heuristic3::weights = {20, 1, 1, 5, 5};
+array<int, 2> Heuristic1::weights = {1, 1};
+array<int, 2> Heuristic2::weights = {1, 1};
 
 const int learningRange = 20;
 
@@ -199,31 +204,17 @@ int main() {
 
     Bot<Heuristic1, true> b1;
     Bot<Heuristic2, true> b2;
-    Bot<Heuristic3, true> b3;
 
     while (true) {
-        int b1Wins = 0;
-        int b2Wins = 0;
-        int b3Wins = 0;
+        bool b1Wins = playGame(b1, b2);
 
-        playGame(b1, b2) ? b1Wins++ : b2Wins++;
-        playGame(b1, b3) ? b1Wins++ : b3Wins++;
-        playGame(b2, b3) ? b2Wins++ : b3Wins++;
-
-        if (b1Wins >= b2Wins && b1Wins >= b3Wins) {
+        if (b1Wins) {
             printArray<int, Heuristic1::weights.size()>(Heuristic1::weights);
             updateWeights<Heuristic1, Heuristic2,learningRange>();
-            updateWeights<Heuristic1, Heuristic3,learningRange>();
-        }
-        else if (b2Wins > b3Wins) {
-            printArray<int, Heuristic2::weights.size()>(Heuristic2::weights);
-            updateWeights<Heuristic2, Heuristic1,learningRange>();
-            updateWeights<Heuristic2, Heuristic3,learningRange>();
         }
         else {
             printArray<int, Heuristic2::weights.size()>(Heuristic2::weights);
-            updateWeights<Heuristic3, Heuristic1,learningRange>();
-            updateWeights<Heuristic3, Heuristic2,learningRange>();
+            updateWeights<Heuristic2, Heuristic1,learningRange>();
         }
     }
 }

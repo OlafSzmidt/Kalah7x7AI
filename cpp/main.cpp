@@ -48,68 +48,6 @@ struct Heuristic1 {
 };
 
 
-struct Heuristic2 {
-    static array<int, 2> weights;
-
-    static int call(const Board& b, Side maxPlayerSide, Side playSide) {
-        int maxScore = b.getSeedsInStore(maxPlayerSide);
-        int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
-
-        int maxSeeds = getSeedsOnBoardSide(b, maxPlayerSide);
-        int minSeeds = getSeedsOnBoardSide(b, opposideSide(maxPlayerSide));
-
-        int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
-        int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
-
-        array<int, weights.size()> featuresVector;
-
-        featuresVector[0] = maxScore - minScore;
-        featuresVector[1] = maxSeeds - minSeeds;
-
-        int playAgain= 0;
-
-        if (canPlayAgain(b, playSide)) {
-            if (playAgain == maxPlayerSide) {
-                playAgain += 5;
-            }
-            else {
-                playAgain -= 5;
-            }
-        }
-        return dotProduct<weights.size()>(featuresVector, weights) + playAgain;
-    }
-};
-
-struct Heuristic3 {
-    static array<int, 5> weights;
-
-    static int call(const Board& b, Side maxPlayerSide, Side playSide) {
-        int maxScore = b.getSeedsInStore(maxPlayerSide);
-        int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
-
-        int maxSeeds = getSeedsOnBoardSide(b, maxPlayerSide);
-        int minSeeds = getSeedsOnBoardSide(b, opposideSide(maxPlayerSide));
-
-        int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
-        int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
-
-        array<int, weights.size()> featuresVector;
-
-        featuresVector[0] = maxScore - minScore;
-        featuresVector[1] = maxSeeds - minSeeds;
-        featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
-
-        featuresVector[3] = 49 - minScore;
-
-        int playAgain = canPlayAgain(b, playSide) ? 1 : -1;
-        int playAgainFactor =  maxPlayerSide == playSide ? 1 : -1;
-        featuresVector[4] = playAgain * playAgainFactor;
-
-        return dotProduct<weights.size()>(featuresVector, weights);
-    }
-};
-
-
 template <typename Winner, typename Loser, int LearningRange>
 void updateWeights() {
     for (int i = 0; i < Winner::weights.size(); ++i) {
@@ -194,27 +132,16 @@ bool playGame(Bot<H1, NoOutput1>& b, Bot<H2, NoOutput2>& b2) {
 }
 
 
-array<int, 2> Heuristic1::weights = {1, 1};
-array<int, 2> Heuristic2::weights = {1, 1};
+array<int, 2> Heuristic1::weights = {13, -3};
 
 const int learningRange = 20;
 
 int main() {
 
 
-    Bot<Heuristic1, true> b1;
-    Bot<Heuristic2, true> b2;
+    Bot<Heuristic1> b1;
 
-    while (true) {
-        bool b1Wins = playGame(b1, b2);
-
-        if (b1Wins) {
-            printArray<int, Heuristic1::weights.size()>(Heuristic1::weights);
-            updateWeights<Heuristic1, Heuristic2,learningRange>();
-        }
-        else {
-            printArray<int, Heuristic2::weights.size()>(Heuristic2::weights);
-            updateWeights<Heuristic2, Heuristic1,learningRange>();
-        }
+    for (;;) {
+        b1.runBot();
     }
 }

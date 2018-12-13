@@ -78,14 +78,42 @@ struct Heuristic2 {
     }
 };
 
-const int upperlimit = 500;
-const int lowerlimit = -500;
+struct Heuristic3 {
+    static array<int, 5> weights;
+
+    static int call(const Board& b, Side maxPlayerSide, Side playSide) {
+        int maxScore = b.getSeedsInStore(maxPlayerSide);
+        int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
+
+        int maxSeeds = getSeedsOnBoardSide(b, maxPlayerSide);
+        int minSeeds = getSeedsOnBoardSide(b, opposideSide(maxPlayerSide));
+
+        int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
+        int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
+
+        array<int, weights.size()> featuresVector;
+
+        featuresVector[0] = maxScore - minScore;
+        featuresVector[1] = maxSeeds - minSeeds;
+        featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
+
+        int capturePotential = maximumCapturePotential(b, playSide);
+        int captureFactor = maxPlayerSide == playSide ? 1 : -1;
+        featuresVector[3] = captureFactor * capturePotential;
+
+        int playAgain = canPlayAgain(b, playSide) ? 1 : -1;
+        int playAgainFactor =  maxPlayerSide == playSide ? 1 : -1;
+        featuresVector[4] = playAgain * playAgainFactor;
+
+        return dotProduct<weights.size()>(featuresVector, weights);
+    }
+};
+
 
 template <typename Winner, typename Loser, int LearningRange>
 void updateWeights() {
     for (int i = 0; i < Winner::weights.size(); ++i) {
         int newWeight = Winner::weights[i] + rand() % LearningRange * 2 - LearningRange;
-        newWeight = newWeight > upperlimit ? upperlimit : newWeight < lowerlimit ? lowerlimit : newWeight;
 
         Loser::weights[i] = newWeight;
     }
@@ -168,6 +196,7 @@ bool playGame(Bot<H1, NoOutput1>& b, Bot<H2, NoOutput2>& b2) {
 
 array<int, 5> Heuristic1::weights = {1, 1, 1, 1, 1};
 array<int, 5> Heuristic2::weights = {1, 1, 1, 1, 1};
+array<int, 5> Heuristic3::weights = {1, 1, 1, 1, 1};
 
 const int learningRange = 200;
 
@@ -176,19 +205,52 @@ int main() {
 
     Bot<Heuristic1, true> b1;
     Bot<Heuristic2, true> b2;
+    Bot<Heuristic3, true> b3;
 
     while (true) {
-        bool b1Wins = playGame(b1, b2);
+        bool b1Wins2 = playGame(b1, b2);
+        bool b1Wins3 = playGame(b1, b3);
+        bool b2Wins3 = playGame(b2, b3);
 
-        if (b1Wins) {
-            updateWeights<Heuristic1, Heuristic2,learningRange>();
-            printArray<int, Heuristic1::weights.size()>(Heuristic1::weights);
+        int b1Wins = 0;
+        int b2Wins = 0;
+        int b3Wins = 0;
+
+        if (b1Wins2) {
+            b1Wins++;
         }
         else {
-            updateWeights<Heuristic2, Heuristic1, learningRange>();
-            printArray<int, Heuristic2::weights.size()>(Heuristic2::weights);
+            b2Wins++;
         }
 
+        if (b1Wins3) {
+            b1Wins++;
+        }
+        else {
+            b3Wins++;
+        }
 
+        if (b2Wins3) {
+            b2Wins++;
+        }
+        else {
+            b3Wins++;
+        }
+
+        if (b1Wins >= b2Wins && b1Wins >= b3Wins) {
+            printArray<int, Heuristic1::weights.size()>(Heuristic1::weights);
+            updateWeights<Heuristic1, Heuristic2,learningRange>();
+            updateWeights<Heuristic1, Heuristic3,learningRange>();
+        }
+        else if (b2Wins > b3Wins) {
+            printArray<int, Heuristic2::weights.size()>(Heuristic2::weights);
+            updateWeights<Heuristic2, Heuristic1,learningRange>();
+            updateWeights<Heuristic2, Heuristic3,learningRange>();
+        }
+        else {
+            printArray<int, Heuristic2::weights.size()>(Heuristic2::weights);
+            updateWeights<Heuristic3, Heuristic1,learningRange>();
+            updateWeights<Heuristic3, Heuristic2,learningRange>();
+        }
     }
 }

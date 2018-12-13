@@ -165,24 +165,11 @@ array<int, 5> Heuristic2::weights = {2451, -923, -1991, -3789, 4451};
 
 const int learningRange = std::numeric_limits<int>::max()/2 - 1;
 
+
 int main() {
+    Bot<Heuristic1> b1;
 
-
-    Bot<Heuristic1, true> b1;
-    Bot<Heuristic2, true> b2;
-
-    while (true) {
-        bool b1Wins = playGame(b1, b2);
-
-        if (b1Wins) {
-            updateWeights<Heuristic1, Heuristic2,learningRange>();
-            printArray<int, Heuristic1::weights.size()>(Heuristic1::weights);
-        }
-        else {
-            updateWeights<Heuristic2, Heuristic1, learningRange>();
-            printArray<int, Heuristic2::weights.size()>(Heuristic2::weights);
-        }
-
-
+    for (;;) {
+        b1.runBot();
     }
 }

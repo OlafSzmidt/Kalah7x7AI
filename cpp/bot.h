@@ -9,7 +9,7 @@
 #include <future>
 #include <utility>
 
-template <typename H = DefaultHeuristic>
+template <typename H = DefaultHeuristic, bool SuppressOutput = false>
 struct Bot {
 Side mySide;
 Board boardState;
@@ -149,7 +149,9 @@ Move doMove(bool isFirstMove, bool isSecondMove) {
                 moveMsg = createMoveMsg(bestMove.getHole());
             }
 
-            std::cout << moveMsg;
+            if (!SuppressOutput) {
+                std::cout << moveMsg;
+            }
 
             return bestMove;
     }

@@ -46,6 +46,42 @@ int defaultHeuristic(const Board& b, Side maxPlayerSide) {
     return value;
 }
 
+bool canPlayAgain(const Board& b, Side playSide) {
+    for (int i = 1; i < 8; ++i) {
+        if (b.getSeeds(playSide, i) % 15 == 8 - i) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool canEndHere(const Board& b, Side playSide, int hole) {
+    for (int i = 1; i < 8; ++i) {
+        if (b.getSeeds(playSide, i) % 15 == hole - i) {
+            return true;
+        }
+    }
+}
+
+
+
+int maximumCapturePotential(const Board& b, Side playSide) {
+    int best = 0;
+
+    for (int i = 1; i < 8; ++i) {
+        if (b.getSeeds(playSide, i) == 0 && canEndHere(b, playSide, i)) {
+            int capturedSeeds = b.getSeedsOp(playSide, i);
+
+            if (capturedSeeds > best) {
+                best = capturedSeeds;
+            }
+        }
+    }
+
+    return best;
+}
+
 std::array<Move, 7> getLegalMoves(const Board& b, Side s) {
     std::array<Move, 7> legalMoves;
 
@@ -110,7 +146,7 @@ int minMax(const Board& b, Side maxPlayerSide, const bool isMaxPlayer, int alpha
     }
 
     if (depth == DEPTH) {
-        return H::call(b, maxPlayerSide);
+        return H::call(b, maxPlayerSide, board_side);
     }
 
     if (isMaxPlayer) {

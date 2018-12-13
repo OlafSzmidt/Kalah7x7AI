@@ -102,7 +102,7 @@ void doMove(bool isFirstMove, bool isSecondMove) {
             int betaCopy = beta;
             // Simulate swap move
             if (isSecondMove) {
-                tasks.emplace_back(Move::make_swapMove(), std::async(iterative_deepening, Node(boardState, false, mySide), DEPTH));
+                tasks.emplace_back(Move::make_swapMove(), std::async(iterative_deepening<>, Node(boardState, false, mySide), DEPTH));
             }
 
             std::vector<LocalPlayResult> localPlayResult;
@@ -120,21 +120,21 @@ void doMove(bool isFirstMove, bool isSecondMove) {
                     if (nextTurn == mySide && !isFirstMove) {
                         if (!capturedLocalTask) {
                             capturedLocalTask = true;
-                            auto localTask = [nextBoardState, this]() {return iterative_deepening(Node(nextBoardState, true, mySide), DEPTH);};
+                            auto localTask = [nextBoardState, this]() {return iterative_deepening<>(Node(nextBoardState, true, mySide), DEPTH);};
                             localPlayResult.emplace_back(m, localTask);
                         }
                         else {
-                            tasks.emplace_back(m , std::async(iterative_deepening, Node(nextBoardState, true, mySide), DEPTH));
+                            tasks.emplace_back(m , std::async(iterative_deepening<>, Node(nextBoardState, true, mySide), DEPTH));
                         }
                     }else {
                         if (!capturedLocalTask) {
                             capturedLocalTask = true;
-                            auto localTask = [nextBoardState, this]() {return iterative_deepening(Node(nextBoardState, false, opposideSide(mySide)),DEPTH);};
+                            auto localTask = [nextBoardState, this]() {return iterative_deepening<>(Node(nextBoardState, false, opposideSide(mySide)),DEPTH);};
                             localPlayResult.emplace_back(m, localTask);
 
                         }
                         else {
-                            tasks.emplace_back(m , std::async(iterative_deepening, Node(nextBoardState, false, opposideSide(mySide)), DEPTH));
+                            tasks.emplace_back(m , std::async(iterative_deepening<>, Node(nextBoardState, false, opposideSide(mySide)), DEPTH));
                         }
                     }
 	           
@@ -145,13 +145,9 @@ void doMove(bool isFirstMove, bool isSecondMove) {
             bestMoveValue = localPlayResult.front().task();
             bestMove = localPlayResult.front().startMove;
 
-            std::cerr << "Local Move " << bestMove.hole << "\n";
-
             for (auto i = tasks.begin(); i != tasks.end(); ++i) {
                 int value = i->value.get();
 
-                std::cerr << value << "\n";
-               
                 if (value > bestMoveValue) {
                     bestMoveValue = value;
                     bestMove = i->startMove;

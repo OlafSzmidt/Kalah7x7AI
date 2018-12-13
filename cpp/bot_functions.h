@@ -13,7 +13,7 @@
 #include <utility>
 #include <mutex>
 
-const int DEPTH = 16;
+const int DEPTH = 13;
 
 std::array<Move, 7> getLegalMoves(const Board& b, Side s);
 
@@ -21,10 +21,13 @@ int getSeedsOnBoardSide(const Board& b, Side s);
 
 int heuristicValue(const Board& b, Side maxPlayerSide);
 
+
+
 struct Node {
     Board b;
     bool isMaximisingPlayer;
     Side side;
+    int depth;
 
     int getHeuristicValue() const {
         return heuristicValue(b, isMaximisingPlayer? side: opposideSide(side));
@@ -32,7 +35,21 @@ struct Node {
 
     Node(const Board& b, bool isMaxPlayer, Side side): b(b), isMaximisingPlayer(isMaxPlayer), side(side)
     {}
+
+    bool operator==(const Node& other) const{
+        return b == other.b && side == other.side && isMaximisingPlayer == other.isMaximisingPlayer && depth == other.depth;
+    }
+
+
 };
+
+struct NodeHash {
+    size_t operator()(const Node& n) const{
+        return BoardHash()(n.b);
+    }
+};
+
+
 
 
 
@@ -48,13 +65,13 @@ struct TableElement {
     {}
 };
 
-std::unordered_map<Board, TableElement, BoardHash> table{100000};
+std::unordered_map<Node, TableElement, NodeHash> table{100000};
 std::mutex tableMutex;
 int newMinMax(const Node& node, int alpha, int beta, int depth) {
     tableMutex.lock();
-    auto tableEntry = table.find(node.b);
+    auto tableEntry = table.find(node);
 
-    if (tableEntry != table.end()) {
+    if (tableEntry != table.end() && depth <= tableEntry->first.depth) {
         TableElement tableElement = tableEntry->second;
         tableMutex.unlock();
 
@@ -85,19 +102,21 @@ int newMinMax(const Node& node, int alpha, int beta, int depth) {
         int alphaCopy = alpha;
 
         for (Move m : legalMoves) {
-            if (guess >= beta) {
-                break;
-            }
-
             if (m.hole != -1) {
                 Board nextState(node.b);
                 Side nextTurnSide = makeMove(nextState, m);
 
                 if (nextTurnSide == node.side) {
                     guess = std::max(guess, newMinMax(Node(nextState, node.isMaximisingPlayer, nextTurnSide), alphaCopy, beta, depth - 1));
+                    alphaCopy = std::max(alphaCopy, guess);
                 }
                 else {
                     guess = std::max(guess, newMinMax(Node(nextState, !node.isMaximisingPlayer, nextTurnSide), alphaCopy, beta, depth - 1));
+                    alphaCopy = std::max(alphaCopy, guess);
+                }
+
+                if (guess >= beta) {
+                    break;
                 }
             }
         }
@@ -108,10 +127,6 @@ int newMinMax(const Node& node, int alpha, int beta, int depth) {
         int betaCopy = beta;
 
         for (Move m : legalMoves) {
-            if (guess <= alpha) {
-                break;
-            }
-
             if (m.hole != -1) {
                 Board nextState(node.b);
                 Side nextTurnSide = makeMove(nextState, m);
@@ -122,15 +137,22 @@ int newMinMax(const Node& node, int alpha, int beta, int depth) {
                 else {
                     guess = std::min(guess, newMinMax(Node(nextState, !node.isMaximisingPlayer, nextTurnSide), alpha, betaCopy, depth - 1));
                 }
+
+                betaCopy = std::min(guess, betaCopy);
+
+                if (guess <= alpha) {
+                    break;
+                }
             }
         }
     }
 
     // Aquire lock
     tableMutex.lock();
-    auto tableElement = table.find(node.b);
+    auto tableElement = table.find(node);
     if (tableElement == table.end()) {
-        tableElement = table.emplace(node.b, TableElement{}).first;
+        tableElement = table.emplace(node, TableElement{}).first;
+        const_cast<Node*>(&tableElement->first)->depth = depth;
     }
 
     if (guess <= alpha) {
@@ -159,11 +181,13 @@ int newMinMax(const Node& node, int alpha, int beta, int depth) {
 }
 
 // i guess 0
+template <bool B>
 int minMaxLoop(const Node& node, int guess, int depth) {
     int currentGuess = guess;
 
     int upperbound = std::numeric_limits<int>::max();
     int lowerbound = std::numeric_limits<int>::min();
+
 
     while (lowerbound < upperbound) {
         int beta;
@@ -182,17 +206,22 @@ int minMaxLoop(const Node& node, int guess, int depth) {
         else {
             lowerbound = currentGuess;
         }
+
+        if (B) {
+            std::cerr << currentGuess << ", " << lowerbound << ", " << upperbound << "\n";
+            std::cerr << "\n\n";
+        }
     }
 
     return currentGuess;
 }
 
 
-
+template <bool B = false>
 int iterative_deepening(const Node& n, int depth_limit) {
     int guess = 0;
     for (int i = 1; i < depth_limit; i+=2) {
-        guess = minMaxLoop(n, guess, i);
+        guess = minMaxLoop<B>(n, guess, i);
     }
 
     return guess;

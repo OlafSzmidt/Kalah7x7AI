@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <limits>
 
-const int DEPTH = 11;
+const int DEPTH = 12;
 
 int getSeedsOnBoardSide(const Board& b, Side s);
 
@@ -42,12 +42,14 @@ bool canPlayAgain(const Board& b, Side playSide) {
     return false;
 }
 
-bool canEndHere(const Board& b, Side playSide, int hole) {
+bool canEndHere(const Board& b, Side playSide, int targetHole) {
     for (int i = 1; i < 8; ++i) {
-        if (b.getSeeds(playSide, i) % 15 == hole - i) {
+        if (b.getSeeds(playSide, i) % 15  == (15 - i + targetHole) % 15) {
             return true;
         }
     }
+
+    return false;
 }
 
 

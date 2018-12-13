@@ -78,10 +78,16 @@ struct Heuristic2 {
     }
 };
 
+const int upperlimit = 500;
+const int lowerlimit = -500;
+
 template <typename Winner, typename Loser, int LearningRange>
 void updateWeights() {
     for (int i = 0; i < Winner::weights.size(); ++i) {
-        Loser::weights[i] = Winner::weights[i] + rand() % LearningRange * 2 - LearningRange;
+        int newWeight = Winner::weights[i] + rand() % LearningRange * 2 - LearningRange;
+        newWeight = newWeight > upperlimit ? upperlimit : newWeight < lowerlimit ? lowerlimit : newWeight;
+
+        Loser::weights[i] = newWeight;
     }
 }
 
@@ -163,7 +169,7 @@ bool playGame(Bot<H1, NoOutput1>& b, Bot<H2, NoOutput2>& b2) {
 array<int, 5> Heuristic1::weights = {4111, -329, -401, 929, 647};
 array<int, 5> Heuristic2::weights = {2451, -923, -1991, -3789, 4451};
 
-const int learningRange = std::numeric_limits<int>::max()/2 - 1;
+const int learningRange = 200;
 
 int main() {
 

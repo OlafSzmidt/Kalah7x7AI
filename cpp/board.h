@@ -55,6 +55,8 @@ struct Move {
     }
 };
 
+
+
 struct Board {
 
     static const uint32_t NORTH_ROW = 0;
@@ -191,6 +193,9 @@ struct Board {
         board[indexOfSide(side)][0] += seeds;
     }
 
+    bool operator==(const Board& other) {
+        return board == other.board;
+    }
 
 };
 
@@ -293,6 +298,22 @@ Side makeMove (Board& board, Move move)
     else
         return opposideSide(move.getSide());
 }
+
+struct BoardHash {
+    size_t operator()(const Board& b)  const {
+        std::hash<int> hasher;
+        size_t result = 0;
+
+        for (int i = 0; i < b.board[0].size(); ++i) {
+            result = result * 31 + hasher(b.board[0][i]);
+        }
+        for (int i = 0; i < b.board[1].size(); ++i) {
+            result = result * 31 + hasher(b.board[1][i]);
+        }
+
+
+    }
+};
 
 
 #endif //UNTITLED1_BOARD_H

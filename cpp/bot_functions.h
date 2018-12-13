@@ -48,7 +48,7 @@ struct TableElement {
     {}
 };
 
-std::unordered_map<Board, TableElement> table{100000};
+std::unordered_map<Board, TableElement, BoardHash> table{100000};
 std::mutex tableMutex;
 int newMinMax(const Node& node, int alpha, int beta, int depth) {
     tableMutex.lock();

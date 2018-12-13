@@ -34,9 +34,7 @@ struct Heuristic1 {
         featuresVector[1] = maxSeeds - minSeeds;
         featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
 
-        int capturePotential = maximumCapturePotential(b, playSide);
-        int captureFactor = maxPlayerSide == playSide ? 1 : -1;
-        featuresVector[3] = captureFactor * capturePotential;
+        featuresVector[3] = 49 - minScore;
 
         int playAgain = canPlayAgain(b, playSide) ? 1 : -1;
         int playAgainFactor =  maxPlayerSide == playSide ? 1 : -1;
@@ -66,9 +64,7 @@ struct Heuristic2 {
         featuresVector[1] = maxSeeds - minSeeds;
         featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
 
-        int capturePotential = maximumCapturePotential(b, playSide);
-        int captureFactor = maxPlayerSide == playSide ? 1 : -1;
-        featuresVector[3] = captureFactor * capturePotential;
+        featuresVector[3] = 49 - minScore;
 
         int playAgain = canPlayAgain(b, playSide) ? 1 : -1;
         int playAgainFactor =  maxPlayerSide == playSide ? 1 : -1;
@@ -97,9 +93,7 @@ struct Heuristic3 {
         featuresVector[1] = maxSeeds - minSeeds;
         featuresVector[2] = stonesInFirstTwo - stonesInLastTwo;
 
-        int capturePotential = maximumCapturePotential(b, playSide);
-        int captureFactor = maxPlayerSide == playSide ? 1 : -1;
-        featuresVector[3] = captureFactor * capturePotential;
+        featuresVector[3] = 49 - minScore;
 
         int playAgain = canPlayAgain(b, playSide) ? 1 : -1;
         int playAgainFactor =  maxPlayerSide == playSide ? 1 : -1;
@@ -196,9 +190,9 @@ bool playGame(Bot<H1, NoOutput1>& b, Bot<H2, NoOutput2>& b2) {
 
 array<int, 5> Heuristic1::weights = {1, 1, 1, 1, 1};
 array<int, 5> Heuristic2::weights = {1, 1, 1, 1, 1};
-array<int, 5> Heuristic3::weights = {1, 1, 1, 1, 1};
+array<int, 5> Heuristic3::weights = {20, 1, 1, 5, 5};
 
-const int learningRange = 200;
+const int learningRange = 20;
 
 int main() {
 
@@ -208,34 +202,13 @@ int main() {
     Bot<Heuristic3, true> b3;
 
     while (true) {
-        bool b1Wins2 = playGame(b1, b2);
-        bool b1Wins3 = playGame(b1, b3);
-        bool b2Wins3 = playGame(b2, b3);
-
         int b1Wins = 0;
         int b2Wins = 0;
         int b3Wins = 0;
 
-        if (b1Wins2) {
-            b1Wins++;
-        }
-        else {
-            b2Wins++;
-        }
-
-        if (b1Wins3) {
-            b1Wins++;
-        }
-        else {
-            b3Wins++;
-        }
-
-        if (b2Wins3) {
-            b2Wins++;
-        }
-        else {
-            b3Wins++;
-        }
+        playGame(b1, b2) ? b1Wins++ : b2Wins++;
+        playGame(b1, b3) ? b1Wins++ : b3Wins++;
+        playGame(b2, b3) ? b2Wins++ : b3Wins++;
 
         if (b1Wins >= b2Wins && b1Wins >= b3Wins) {
             printArray<int, Heuristic1::weights.size()>(Heuristic1::weights);

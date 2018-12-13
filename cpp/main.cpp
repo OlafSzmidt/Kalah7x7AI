@@ -160,10 +160,10 @@ bool playGame(Bot<H1, NoOutput1>& b, Bot<H2, NoOutput2>& b2) {
 }
 
 
-array<int, 5> Heuristic1::weights = {3795, 19, 265, 1119, 1415};
-array<int, 5> Heuristic2::weights = {1, 1, 1, 1, 1};
+array<int, 5> Heuristic1::weights = {4111, -329, -401, 929, 647};
+array<int, 5> Heuristic2::weights = {2451, -923, -1991, -3789, 4451};
 
-const int learningRange = 150;
+const int learningRange = std::numeric_limits<int>::max()/2 - 1;
 
 int main() {
 

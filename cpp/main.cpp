@@ -159,7 +159,8 @@ bool playGame(Bot<H1, NoOutput1>& b, Bot<H2, NoOutput2>& b2) {
 
 }
 
-array<int, 5> Heuristic1::weights = {1, 1, 1, 1, 1};
+
+array<int, 5> Heuristic1::weights = {3795, 19, 265, 1119, 1415};
 array<int, 5> Heuristic2::weights = {1, 1, 1, 1, 1};
 
 const int learningRange = 150;

@@ -13,7 +13,7 @@
 #include <utility>
 #include <mutex>
 
-const int DEPTH = 15;
+const int DEPTH = 16;
 
 std::array<Move, 7> getLegalMoves(const Board& b, Side s);
 
@@ -94,10 +94,10 @@ int newMinMax(const Node& node, int alpha, int beta, int depth) {
                 Side nextTurnSide = makeMove(nextState, m);
 
                 if (nextTurnSide == node.side) {
-                    guess = std::max(guess, newMinMax(Node(nextState, node.isMaximisingPlayer, nextTurnSide), alphaCopy, beta, depth + 1));
+                    guess = std::max(guess, newMinMax(Node(nextState, node.isMaximisingPlayer, nextTurnSide), alphaCopy, beta, depth - 1));
                 }
                 else {
-                    guess = std::max(guess, newMinMax(Node(nextState, !node.isMaximisingPlayer, nextTurnSide), alphaCopy, beta, depth + 1));
+                    guess = std::max(guess, newMinMax(Node(nextState, !node.isMaximisingPlayer, nextTurnSide), alphaCopy, beta, depth - 1));
                 }
             }
         }
@@ -117,10 +117,10 @@ int newMinMax(const Node& node, int alpha, int beta, int depth) {
                 Side nextTurnSide = makeMove(nextState, m);
 
                 if (nextTurnSide == node.side) {
-                    guess = std::min(guess, newMinMax(Node(nextState, node.isMaximisingPlayer, nextTurnSide), alpha, betaCopy, depth + 1));
+                    guess = std::min(guess, newMinMax(Node(nextState, node.isMaximisingPlayer, nextTurnSide), alpha, betaCopy, depth - 1));
                 }
                 else {
-                    guess = std::min(guess, newMinMax(Node(nextState, !node.isMaximisingPlayer, nextTurnSide), alpha, betaCopy, depth + 1));
+                    guess = std::min(guess, newMinMax(Node(nextState, !node.isMaximisingPlayer, nextTurnSide), alpha, betaCopy, depth - 1));
                 }
             }
         }
@@ -143,6 +143,7 @@ int newMinMax(const Node& node, int alpha, int beta, int depth) {
         int upperBound = guess;
 
         tableElement->second.upperBound = upperBound;
+
         tableElement->second.lowerBound = lowerBound;
     }
 
@@ -157,7 +158,7 @@ int newMinMax(const Node& node, int alpha, int beta, int depth) {
     return guess;
 }
 
-
+// i guess 0
 int minMaxLoop(const Node& node, int guess, int depth) {
     int currentGuess = guess;
 
@@ -170,9 +171,10 @@ int minMaxLoop(const Node& node, int guess, int depth) {
             beta = currentGuess + 1;
         }
         else {
-            beta = currentGuess;
+            beta = currentGuess; // beta is 0
         }
 
+        // -1 ,0 , depth
         currentGuess = newMinMax(node, beta - 1, beta, depth);
         if (currentGuess < beta) {
             upperbound = currentGuess;
@@ -182,6 +184,7 @@ int minMaxLoop(const Node& node, int guess, int depth) {
         }
     }
 
+    return currentGuess;
 }
 
 

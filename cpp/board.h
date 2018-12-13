@@ -193,7 +193,7 @@ struct Board {
         board[indexOfSide(side)][0] += seeds;
     }
 
-    bool operator==(const Board& other) {
+    bool operator==(const Board& other) const {
         return board == other.board;
     }
 
@@ -311,7 +311,7 @@ struct BoardHash {
             result = result * 31 + hasher(b.board[1][i]);
         }
 
-
+        return result;
     }
 };
 

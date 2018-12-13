@@ -48,6 +48,8 @@ bool canEndHere(const Board& b, Side playSide, int hole) {
             return true;
         }
     }
+
+    return false;
 }
 
 

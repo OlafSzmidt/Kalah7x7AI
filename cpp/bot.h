@@ -28,13 +28,14 @@ Move onStart(bool amISouth) {
 }
 
 void onState(const MoveTurn& moveTurn) {
+    if (moveTurn.move == -1) {
+        mySide = opposideSide(mySide);
+    }
+
     if (moveTurn.again) {
         doMove(false, !madeMoveYet);
     }
 
-    if (moveTurn.move == -1) {
-        mySide = opposideSide(mySide);
-    }
 }
 
 

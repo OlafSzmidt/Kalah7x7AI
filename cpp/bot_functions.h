@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <limits>
 
-const int DEPTH = 10;
+const int DEPTH = 11;
 
 int getSeedsOnBoardSide(const Board& b, Side s);
 
@@ -31,20 +31,6 @@ struct DefaultHeuristic {
   }
 };
 
-int defaultHeuristic(const Board& b, Side maxPlayerSide) {
-    int maxScore = b.getSeedsInStore(maxPlayerSide);
-    int minScore = b.getSeedsInStore(opposideSide(maxPlayerSide));
-
-    int maxSeeds = getSeedsOnBoardSide(b, maxPlayerSide);
-    int minSeeds = getSeedsOnBoardSide(b, opposideSide(maxPlayerSide));
-
-    int stonesInFirstTwo = b.getSeeds(maxPlayerSide, 1) + b.getSeeds(maxPlayerSide, 2);
-    int stonesInLastTwo = b.getSeeds(maxPlayerSide, 6) + b.getSeeds(maxPlayerSide, 7);
-
-    int value = 32 * (maxScore - minScore) + 32 * (maxSeeds - minSeeds);
-
-    return value;
-}
 
 bool canPlayAgain(const Board& b, Side playSide) {
     for (int i = 1; i < 8; ++i) {

@@ -34,22 +34,23 @@ struct Heuristic1 {
         featuresVector[1] = maxSeeds - minSeeds;
 
         int playAgain= 0;
+        int capPotential = maximumCapturePotential(b, playSide);
 
         if (canPlayAgain(b, playSide)) {
             if (playAgain == maxPlayerSide) {
                 playAgain += 0.5;
-
-                int maxCapPotential = maximumCapturePotential(b, playSide);
-                playAgain += maxCapPotential;
             }
             else {
                 playAgain -= 0.5;
-                int maxCapPotential = maximumCapturePotential(b, playSide);
-                playAgain -= maxCapPotential;
             }
         }
 
-        return maxScore - minScore + playAgain;
+        if (playSide = maxPlayerSide) {
+            capPotential * -1;
+        }
+
+
+        return maxScore - minScore + playAgain + capPotential;
     }
 };
 

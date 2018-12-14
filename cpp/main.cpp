@@ -45,7 +45,7 @@ struct Heuristic1 {
             }
         }
 
-        if (playSide = maxPlayerSide) {
+        if (playSide == maxPlayerSide) {
             capPotential * -1;
         }
 

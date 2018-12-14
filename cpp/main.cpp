@@ -37,20 +37,22 @@ struct Heuristic1 {
         int capPotential = maximumCapturePotential(b, playSide);
 
         if (canPlayAgain(b, playSide)) {
+	    capPotential = 0;
+
             if (playAgain == maxPlayerSide) {
-                playAgain += 0.5;
+                playAgain += 4;
             }
             else {
-                playAgain -= 0.5;
+                playAgain -= 4;
             }
         }
 
-        if (playSide == maxPlayerSide) {
-            capPotential * -1;
+        if (playSide != maxPlayerSide) {
+            capPotential *= -1;
         }
 
 
-        return maxScore - minScore + playAgain + capPotential;
+        return maxScore - minScore + playAgain;
     }
 };
 

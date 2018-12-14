@@ -37,13 +37,19 @@ struct Heuristic1 {
 
         if (canPlayAgain(b, playSide)) {
             if (playAgain == maxPlayerSide) {
-                playAgain += 5;
+                playAgain += 0.5;
+
+                int maxCapPotential = maximumCapturePotential(b, playSide);
+                playAgain += maxCapPotential;
             }
             else {
-                playAgain -= 5;
+                playAgain -= 0.5;
+                int maxCapPotential = maximumCapturePotential(b, playSide);
+                playAgain -= maxCapPotential;
             }
         }
-        return dotProduct<weights.size()>(featuresVector, weights) + playAgain;
+
+        return maxScore - minScore + playAgain;
     }
 };
 

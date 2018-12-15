@@ -66,9 +66,9 @@ void runBot() {
 
 struct PlayResult {
     Move startMove;
-    std::future<int> value;
+    std::future<double> value;
 
-    PlayResult(const Move& m, std::future<int>&& val) : startMove(m), value(std::forward<std::future<int>>(val))
+    PlayResult(const Move& m, std::future<double>&& val) : startMove(m), value(std::forward<std::future<double>>(val))
     {}
 };
 

@@ -5,6 +5,7 @@
 int main() {
     try{
       Bot b;
+        std::cout << "Hello" << std::endl;
 
       for (;;) {
         b.runBot();

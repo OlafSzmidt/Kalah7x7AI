@@ -260,7 +260,8 @@ Side makeMove (Board& board, Move move)
     }
 
     // game over?
-    Side finishedSide;
+    // Initialise to NORTH to get rid of uninitialised warning
+    Side finishedSide = NORTH;
     bool gameOver = false;
 
     if (holesEmpty(board, move.getSide())) {

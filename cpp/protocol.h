@@ -67,7 +67,7 @@ std::vector<std::string> split(const std::string& input, char delim, int limit) 
 }
 
 bool interpretStartMsg (const std::string& msg)  {
-    uint32_t msgLength = msg.size();
+    long msgLength = msg.size();
 
     if (msg.at(msgLength - 1) != '\n') {
         std::cerr << "Message not terminated with 0x0A character.";
@@ -96,7 +96,7 @@ MoveTurn interpretStateMsg (const std::string& msg, Board& board)
 {
         MoveTurn moveTurn;
 
-        uint32_t msgLength = msg.size();
+        long msgLength = msg.size();
 
         if (msg.at(msgLength - 1) != '\n') {
             throw "Message not terminated with 0x0A character.";
